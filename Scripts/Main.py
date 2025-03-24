@@ -1,3 +1,5 @@
+import os
+
 import pygame, random
 from pygame import FULLSCREEN
 from sympy.strategies.core import switch
@@ -7,7 +9,10 @@ pygame.mixer.init()
 
 left_channel = pygame.mixer.Channel(0)
 clock = pygame.time.Clock()
-screen = pygame.display.set_mode((826, 532))
+os.environ["SDL_VIDEO_CENTERED"] = "1"
+info = pygame.display.Info()
+width, height = info.current_w, info.current_h
+screen = pygame.display.set_mode((width, height), pygame.FULLSCREEN)
 map = pygame.image.load("../Sprites/map.webp").convert_alpha()
 note_1 = pygame.image.load("../Sprites/note.png").convert_alpha()
 cursor = pygame.image.load("../Sprites/cursor.png").convert_alpha()
@@ -89,7 +94,6 @@ while running:
     screen.blit(overlap_mask.to_surface(None, mask_being_rendered, None), (0, 0))
 
     for event in pygame.event.get():
-
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 running = False
@@ -99,6 +103,8 @@ while running:
                         objects = RandomObject(note_1)
                         update_runner_array.append(objects)
             match event.key:
+                case pygame.K_ESCAPE:
+                    running = False
                 case pygame.K_w:
                     if _check_pos(0,1) != 1:
                         mapY += 1
