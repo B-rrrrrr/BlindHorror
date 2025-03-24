@@ -10,11 +10,17 @@ pygame.mixer.init()
 left_channel = pygame.mixer.Channel(0)
 clock = pygame.time.Clock()
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 os.environ["SDL_VIDEO_CENTERED"] = "1"
 info = pygame.display.Info()
 width, height = info.current_w, info.current_h
 screen = pygame.display.set_mode((width, height), pygame.FULLSCREEN)
 map = pygame.image.load("../Sprites/map.webp").convert_alpha()
+=======
+screen = pygame.display.set_mode((1280, 720))
+map = pygame.image.load("../Sprites/map.png").convert_alpha()
+map = pygame.transform.scale_by(map, 20)
+>>>>>>> Stashed changes
 =======
 screen = pygame.display.set_mode((1280, 720))
 map = pygame.image.load("../Sprites/map.png").convert_alpha()
