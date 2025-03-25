@@ -24,8 +24,11 @@ map = pygame.transform.scale(map, (64 * 20 *scale_x, 36 * 20 * scale_y))
 note_1 = pygame.image.load("../Sprites/note.png").convert_alpha()
 cursor = pygame.image.load("../Sprites/cursor.png").convert_alpha()
 black = pygame.image.load("../Sprites/black.jpg").convert_alpha()
+location_to_hit = pygame.image.load("../Sprites/location_to_hit.png").convert_alpha()
+location_hit = pygame.image.load("../Sprites/location_hit.png").convert_alpha()
 wall_sfx = pygame.mixer.Sound("../SFX/hitwall.mp3")
 walk_sfx = pygame.mixer.Sound("../SFX/walking.mp3")
+
 cursor = pygame.transform.scale(cursor, (150 * scale_x, 150 * scale_y))
 cx = cursor.get_width()/2
 cy = cursor.get_height()/2
@@ -38,19 +41,55 @@ mask_being_rendered = map
 
 update_runner_array = []
 
-mapX=2
+mapX=4
 mapY=2
-map_layout = [
+map_layout_main = [
+    [0, 1,1,1,3,3,1,1,1,1,1],
+    [0, 1,1,2,0,0,2,1,1,1,1],
+    [0, 1,1,1,0,0,1,1,1,1,1],
+    [0, 2,0,0,0,0,0,0,0,0,1],
+    [0, 2,0,0,0,0,1,1,1,2,1],
+    [0, 1,1,1,1,0,1,1,1,1,1],
+    [0, 1,1,1,0,0,1,1,1,1,1],
+    [0, 1,1,1,1,1,1,1,1,1,1],
+    [0]
+]
+map_layout_outside = [
+    [0, 1,1,2,2,1],
+    [0, 1,0,0,0,1],
+    [0, 1,3,0,0,2],
+    [0, 1,3,0,0,2],
+    [0, 1,0,0,0,2],
+    [0, 1,0,0,0,1],
+    [0, 1,1,1,1,1],
+    [0]
+]
+map_layout_reception = [
+    [0, 1,1,1,1,1],
+    [0, 2,0,0,0,3],
+    [0, 1,1,2,1,1],
+    [0, 1,0,0,1,1],
+    [0, 1,1,1,1,1],
+    [0]
+]
+map_layout_janitor = [
     [0, 1,1,1,1],
-    [0, 1,2,0,1],
-    [0, 1,0,0,1],
+    [0, 1,1,2,1],
+    [0, 1,3,0,1],
     [0, 1,1,1,1],
     [0]
 ]
-map_layout.reverse()
+map_layout_comms = [
+    [0, 1,1,1,1],
+    [0, 1,3,0,1],
+    [0, 1,1,2,1],
+    [0, 1,1,1,1],
+    [0]
+]
+map_layout_main.reverse()
 
 def _check_pos(change_x, change_y):
-    new_list = map_layout[mapY + change_y]
+    new_list = map_layout_main[mapY + change_y]
     return new_list[mapX + change_x]
 
 class RandomObject():
