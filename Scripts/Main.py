@@ -9,20 +9,24 @@ pygame.mixer.init()
 
 left_channel = pygame.mixer.Channel(0)
 clock = pygame.time.Clock()
+pygame.mouse.set_visible(False)
 
 os.environ["SDL_VIDEO_CENTERED"] = "1"
 info = pygame.display.Info()
 width, height = info.current_w, info.current_h
 screen = pygame.display.set_mode((width, height), pygame.FULLSCREEN)
+scale_x = screen.get_width() / 1280
+scale_y = screen.get_height() / 720
+
 map = pygame.image.load("../Sprites/map.png").convert_alpha()
-map = pygame.transform.scale_by(map, 20)
+map = pygame.transform.scale(map, (64 * 20 *scale_x, 36 * 20 * scale_y))
 
 note_1 = pygame.image.load("../Sprites/note.png").convert_alpha()
 cursor = pygame.image.load("../Sprites/cursor.png").convert_alpha()
 black = pygame.image.load("../Sprites/black.jpg").convert_alpha()
 wall_sfx = pygame.mixer.Sound("../SFX/hitwall.mp3")
 walk_sfx = pygame.mixer.Sound("../SFX/walking.mp3")
-cursor = pygame.transform.scale_by(cursor, 0.25)
+cursor = pygame.transform.scale(cursor, (150 * scale_x, 150 * scale_y))
 cx = cursor.get_width()/2
 cy = cursor.get_height()/2
 font = pygame.font.Font(None, 100)
@@ -98,8 +102,6 @@ while running:
 
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                running = False
             if event.key == pygame.K_e:
                 if _check_pos(0, 0) == 2:
                     for i in range(2):
