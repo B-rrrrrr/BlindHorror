@@ -27,8 +27,10 @@ cursor = pygame.image.load("../Sprites/cursor.png").convert_alpha()
 black = pygame.image.load("../Sprites/black.jpg").convert_alpha()
 location_to_hit = pygame.image.load("../Sprites/location_to_hit.png").convert_alpha()
 location_to_hit = pygame.transform.scale(location_to_hit, (5 * 10 * scale_x, 5 * 10 * scale_y))
+location_to_hit.set_colorkey((0,0,0))
 location_hit = pygame.image.load("../Sprites/location_hit.png").convert_alpha()
 location_hit = pygame.transform.scale(location_hit, (5 * 10 * scale_x, 5 * 10 * scale_y))
+location_hit.set_colorkey((0,0,0))
 location_areas = []
 loc_x = location_to_hit.get_width()/2
 loc_y = location_to_hit.get_height()/2
@@ -70,13 +72,18 @@ class InvestigateArea():
         self.investigated = False
         self.mask = pygame.mask.from_surface(self.not_investigated_img, 0)
     def _show_in_pos(self, mouse_mask, properposition):
-        overlaped_mask = self.mask.overlap_mask(mouse_mask, (-self.xPos + properposition[0], -self.yPos + properposition[1]))
-        screen.blit(overlaped_mask.to_surface(None, self.not_investigated_img, None),(self.xPos,self.yPos))
+        overlap_investigated_mask = self.mask.overlap_mask(mouse_mask, (-self.xPos + properposition[0], -self.yPos + properposition[1]))
+        if not self.investigated:
+            screen.blit(overlap_investigated_mask.to_surface(None, self.not_investigated_img, None), (self.xPos, self.yPos))
+        else:
+            screen.blit(overlap_investigated_mask.to_surface(None, self.investigated_img, None), (self.xPos, self.yPos))
+
 
 for y in map_layout:
     for i, x in enumerate(y):
         if x == 11:
-            location_areas.append(InvestigateArea((2 + (i * 5)) * 20 * scale_x - loc_x, (38 - (map_layout.index(y) * 5)) * 20 * scale_y - loc_y, location_to_hit, location_hit))
+            obj = InvestigateArea((2 + (i * 5)) * 20 * scale_x - loc_x, (38 - (map_layout.index(y) * 5)) * 20 * scale_y - loc_y, location_to_hit, location_hit)
+            location_areas.append(obj)
 
 def _check_pos(change_x, change_y):
     if (mapY + change_y) > 0 and (mapY + change_y) < 8 and (mapX + change_x) > 0 and (mapX+change_x) < 12:
@@ -130,7 +137,7 @@ while running:
     overlap_mask = mask.overlap_mask(mask_2, proper_pos)
     screen.blit(overlap_mask.to_surface(None, mask_being_rendered, None), (0, 0))
     for i in location_areas:
-        i._show_in_pos(mask, proper_pos)
+        i._show_in_pos(mask_2, proper_pos)
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_e:
