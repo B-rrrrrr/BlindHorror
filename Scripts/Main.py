@@ -20,13 +20,18 @@ scale_x = screen.get_width() / 1280
 scale_y = screen.get_height() / 720
 
 map = pygame.image.load("../Sprites/map.png").convert_alpha()
-map = pygame.transform.scale(map, (64 * 20 *scale_x, 36 * 20 * scale_y))
+map = pygame.transform.scale(map, (64 * 20 * scale_x, 36 * 20 * scale_y))
 
 note_1 = pygame.image.load("../Sprites/note.png").convert_alpha()
 cursor = pygame.image.load("../Sprites/cursor.png").convert_alpha()
 black = pygame.image.load("../Sprites/black.jpg").convert_alpha()
 location_to_hit = pygame.image.load("../Sprites/location_to_hit.png").convert_alpha()
+location_to_hit = pygame.transform.scale(location_to_hit, (5 * 10 * scale_x, 5 * 10 * scale_y))
 location_hit = pygame.image.load("../Sprites/location_hit.png").convert_alpha()
+location_hit = pygame.transform.scale(location_hit, (5 * 10 * scale_x, 5 * 10 * scale_y))
+location_areas = []
+loc_x = location_to_hit.get_width()/2
+loc_y = location_to_hit.get_height()/2
 wall_sfx = pygame.mixer.Sound("../SFX/hitwall.mp3")
 walk_sfx = pygame.mixer.Sound("../SFX/walking.mp3")
 
@@ -45,17 +50,33 @@ update_runner_array = []
 mapX=6
 mapY=1
 map_layout = [
-    [0, 7,0,0,6,6,3,3,9,9,9,9],
-    [0, 7,0,0,0,0,0,0,0,0,0,0],
-    [0, 3,3,3,7,7,0,0,9,9,9,9],
-    [0, 3,3,3,0,0,0,0,0,0,0,0],
-    [0, 3,3,3,0,0,0,0,2,1,1,1],
-    [0, 3,3,3,4,4,4,0,2,1,1,1],
-    [0, 3,3,3,5,5,0,0,2,1,1,1],
+    [0, 11,0,0,11,6,3,3,9,9,9,11],
+    [0, 11,0,0,0,0,0,0,0,0,0,0],
+    [0, 3,3,3,11,7,0,0,9,9,9,11],
+    [0, 11,3,3,0,0,0,0,0,0,0,0],
+    [0, 11,3,3,0,0,0,0,2,1,1,1],
+    [0, 3,3,3,4,4,11,0,2,1,1,1],
+    [0, 3,3,3,11,5,0,0,11,1,1,1],
     [0]
 ]
 
 map_layout.reverse()
+class InvestigateArea():
+    def __init__(self, xPos, yPos, not_investigated, investigated):
+        self.xPos = xPos
+        self.yPos = yPos
+        self.not_investigated_img = not_investigated
+        self.investigated_img = investigated
+        self.investigated = False
+        self.mask = pygame.mask.from_surface(self.not_investigated_img, 0)
+    def _show_in_pos(self, mouse_mask, properposition):
+        overlaped_mask = self.mask.overlap_mask(mouse_mask, (-self.xPos + properposition[0], -self.yPos + properposition[1]))
+        screen.blit(overlaped_mask.to_surface(None, self.not_investigated_img, None),(self.xPos,self.yPos))
+
+for y in map_layout:
+    for i, x in enumerate(y):
+        if x == 11:
+            location_areas.append(InvestigateArea((2 + (i * 5)) * 20 * scale_x - loc_x, (38 - (map_layout.index(y) * 5)) * 20 * scale_y - loc_y, location_to_hit, location_hit))
 
 def _check_pos(change_x, change_y):
     if (mapY + change_y) > 0 and (mapY + change_y) < 8 and (mapX + change_x) > 0 and (mapX+change_x) < 12:
@@ -96,7 +117,6 @@ while running:
     mx, my = pygame.mouse.get_pos()
     proper_pos = (mx - cx, my - cy)
     mouse_rect = pygame.Rect(mx, my, 50, 50)
-
     _update_runner(update_runner_array)
 
     if len(update_runner_array) > 1:
@@ -109,7 +129,8 @@ while running:
 
     overlap_mask = mask.overlap_mask(mask_2, proper_pos)
     screen.blit(overlap_mask.to_surface(None, mask_being_rendered, None), (0, 0))
-
+    for i in location_areas:
+        i._show_in_pos(mask, proper_pos)
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_e:
@@ -118,6 +139,8 @@ while running:
                         objects = RandomObject(note_1)
                         update_runner_array.append(objects)
             match event.key:
+                case pygame.K_SPACE:
+                    print(mx, my)
                 case pygame.K_ESCAPE:
                     running = False
                 case pygame.K_w:
