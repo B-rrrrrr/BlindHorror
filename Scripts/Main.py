@@ -3,6 +3,7 @@ import os
 import pygame, random
 from pygame import FULLSCREEN
 from sympy.strategies.core import switch
+from wx.propgrid import NullProperty
 
 pygame.init()
 pygame.mixer.init()
@@ -41,25 +42,26 @@ mask_being_rendered = map
 
 update_runner_array = []
 
-mapX=4
-mapY=2
+mapX=6
+mapY=1
 map_layout = [
     [0, 7,0,0,6,6,3,3,9,9,9,9],
     [0, 7,0,0,0,0,0,0,0,0,0,0],
-    [0, 3,3,3,8,8,0,0,9,9,9,9],
+    [0, 3,3,3,7,7,0,0,9,9,9,9],
     [0, 3,3,3,0,0,0,0,0,0,0,0],
     [0, 3,3,3,0,0,0,0,2,1,1,1],
     [0, 3,3,3,4,4,4,0,2,1,1,1],
     [0, 3,3,3,5,5,0,0,2,1,1,1],
-    [0, 1,1,1,1,1,1,1,1,1,1,1],
     [0]
 ]
 
 map_layout.reverse()
 
 def _check_pos(change_x, change_y):
-    new_list = map_layout[mapY + change_y]
-    return new_list[mapX + change_x]
+    if (mapY + change_y) > 0 and (mapY + change_y) < 8 and (mapX + change_x) > 0 and (mapX+change_x) < 12:
+        new_list = map_layout[mapY + change_y]
+        return new_list[mapX + change_x]
+    return 100
 
 class RandomObject():
     def __init__(self, note_to_be_used):
@@ -119,28 +121,28 @@ while running:
                 case pygame.K_ESCAPE:
                     running = False
                 case pygame.K_w:
-                    if _check_pos(0,1) != 1:
+                    if _check_pos(0,1) == 0:
                         mapY += 1
                         walk_sfx.play()
                     else:
                         wall_sfx.play()
                         left_channel.set_volume(1,1)
                 case pygame.K_s:
-                    if _check_pos(0,-1) != 1:
+                    if _check_pos(0,-1) == 0:
                         mapY -= 1
                         walk_sfx.play()
                     else:
                         wall_sfx.play()
                         left_channel.set_volume(0.5,0.5)
                 case pygame.K_d:
-                    if _check_pos(1,0) != 1:
+                    if _check_pos(1,0) == 0:
                         mapX += 1
                         walk_sfx.play()
                     else:
                         wall_sfx.play()
                         left_channel.set_volume(0,1)
                 case pygame.K_a:
-                    if _check_pos(-1,0) != 1:
+                    if _check_pos(-1,0) == 0:
                         mapX -= 1
                         walk_sfx.play()
                     else:
