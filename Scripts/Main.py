@@ -46,6 +46,7 @@ running = True
 mask = pygame.mask.from_surface(map, 0)
 mask_2 = pygame.mask.from_surface(cursor, 0)
 mask_being_rendered = map
+finished_investigating = False
 
 update_runner_array = []
 
@@ -70,13 +71,15 @@ class InvestigateArea():
         self.not_investigated_img = not_investigated
         self.investigated_img = investigated
         self.investigated = False
+        self.currently_investigating = False
         self.mask = pygame.mask.from_surface(self.not_investigated_img, 0)
     def _show_in_pos(self, mouse_mask, properposition):
-        overlap_investigated_mask = self.mask.overlap_mask(mouse_mask, (-self.xPos + properposition[0], -self.yPos + properposition[1]))
-        if not self.investigated:
-            screen.blit(overlap_investigated_mask.to_surface(None, self.not_investigated_img, None), (self.xPos, self.yPos))
-        else:
-            screen.blit(overlap_investigated_mask.to_surface(None, self.investigated_img, None), (self.xPos, self.yPos))
+        if not self.currently_investigating:
+            overlap_investigated_mask = self.mask.overlap_mask(mouse_mask, (-self.xPos + properposition[0], -self.yPos + properposition[1]))
+            if not self.investigated:
+                screen.blit(overlap_investigated_mask.to_surface(None, self.not_investigated_img, None), (self.xPos, self.yPos))
+            else:
+                screen.blit(overlap_investigated_mask.to_surface(None, self.investigated_img, None), (self.xPos, self.yPos))
 
 
 for y in map_layout:
@@ -105,12 +108,9 @@ class RandomObject():
             if col:
                 if is_note == 0:
                     self.count += 1
-                    print("found")
                     if self.count == 2:
                         update_runner_array.clear()
                         update_runner_array.append(self)
-                else:
-                    print("NOOO")
                 self.can_col = False
     def _get_image(self):
         return self.note
@@ -132,47 +132,54 @@ while running:
     if len(update_runner_array) == 1:
         mask_being_rendered = update_runner_array[0]._get_image()
         mask = pygame.mask.from_surface(mask_being_rendered, 0)
+        finished_investigating = True
         update_runner_array.clear()
 
     overlap_mask = mask.overlap_mask(mask_2, proper_pos)
     screen.blit(overlap_mask.to_surface(None, mask_being_rendered, None), (0, 0))
+
     for i in location_areas:
         i._show_in_pos(mask_2, proper_pos)
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_e:
-                if _check_pos(0, 0) == 2:
+                if _check_pos(0, 0) == 2 and finished_investigating:
+                    print("hey")
+                    mask_being_rendered = map
+                    mask = pygame.mask.from_surface(mask_being_rendered, 0)
+                    finished_investigating = False
+                elif _check_pos(0, 0) == 2:
                     for i in range(2):
+                        for i in location_areas:
+                            i.currently_investigating = True
                         objects = RandomObject(note_1)
                         update_runner_array.append(objects)
             match event.key:
-                case pygame.K_SPACE:
-                    print(mx, my)
                 case pygame.K_ESCAPE:
                     running = False
                 case pygame.K_w:
-                    if _check_pos(0,1) == 0:
+                    if _check_pos(0,1) != 0:
                         mapY += 1
                         walk_sfx.play()
                     else:
                         wall_sfx.play()
                         left_channel.set_volume(1,1)
                 case pygame.K_s:
-                    if _check_pos(0,-1) == 0:
+                    if _check_pos(0,-1) != 0:
                         mapY -= 1
                         walk_sfx.play()
                     else:
                         wall_sfx.play()
                         left_channel.set_volume(0.5,0.5)
                 case pygame.K_d:
-                    if _check_pos(1,0) == 0:
+                    if _check_pos(1,0) != 0:
                         mapX += 1
                         walk_sfx.play()
                     else:
                         wall_sfx.play()
                         left_channel.set_volume(0,1)
                 case pygame.K_a:
-                    if _check_pos(-1,0) == 0:
+                    if _check_pos(-1,0) != 0:
                         mapX -= 1
                         walk_sfx.play()
                     else:
