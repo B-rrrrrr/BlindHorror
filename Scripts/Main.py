@@ -1,7 +1,7 @@
 import os
 
 import pygame, random
-from pygame import FULLSCREEN
+from pygame import FULLSCREEN, Vector2
 from sympy.strategies.core import switch
 from wx.propgrid import NullProperty
 
@@ -23,6 +23,7 @@ map = pygame.image.load("../Sprites/map.png").convert_alpha()
 map = pygame.transform.scale(map, (64 * 20 * scale_x, 36 * 20 * scale_y))
 
 note_1 = pygame.image.load("../Sprites/note.png").convert_alpha()
+note_1 = pygame.transform.scale(note_1, (205 * 2 * scale_x, 246 * 2 * scale_y))
 cursor = pygame.image.load("../Sprites/cursor.png").convert_alpha()
 black = pygame.image.load("../Sprites/black.jpg").convert_alpha()
 location_to_hit = pygame.image.load("../Sprites/location_to_hit.png").convert_alpha()
@@ -37,6 +38,8 @@ loc_y = location_to_hit.get_height()/2
 wall_sfx = pygame.mixer.Sound("../SFX/hitwall.mp3")
 walk_sfx = pygame.mixer.Sound("../SFX/walking.mp3")
 
+object_sfx = [pygame.mixer.Sound("../SFX/temporaryshit/synth.wav"), pygame.mixer.Sound("../SFX/temporaryshit/explosion.wav"), pygame.mixer.Sound("../SFX/temporaryshit/hitHurt(1).wav"), pygame.mixer.Sound("../SFX/temporaryshit/jump.wav"), pygame.mixer.Sound("../SFX/temporaryshit/pickupCoin.wav"), pygame.mixer.Sound("../SFX/temporaryshit/pickupCoin(1).wav")]
+
 cursor = pygame.transform.scale(cursor, (150 * scale_x, 150 * scale_y))
 cx = cursor.get_width()/2
 cy = cursor.get_height()/2
@@ -46,6 +49,7 @@ running = True
 mask = pygame.mask.from_surface(map, 0)
 mask_2 = pygame.mask.from_surface(cursor, 0)
 mask_being_rendered = map
+note_position_offset = Vector2(0, 0)
 finished_investigating = False
 
 update_runner_array = []
@@ -59,7 +63,7 @@ map_layout = [
     [0, 11,3,3,0,0,0,0,0,0,0,0],
     [0, 11,3,3,0,0,0,0,2,1,1,1],
     [0, 3,3,3,4,4,11,0,2,1,1,1],
-    [0, 3,3,3,11,5,0,0,11,1,1,1],
+    [0, 3,3,3,11,5,0,2,11,1,1,1],
     [0]
 ]
 
@@ -95,23 +99,42 @@ def _check_pos(change_x, change_y):
     return 100
 
 class RandomObject():
-    def __init__(self, note_to_be_used):
+    def __init__(self, note_to_be_used, object_array, sound_array):
+        if object_array != 0:
+            ran = random.randint(1, 5)
+            self.sound = sound_array[ran]
+        else:
+            self.sound = sound_array[0]
         self.count = 0
         self.can_col = True
         self.note = note_to_be_used
-        self.this_obj = pygame.Rect(random.randint(100,700), random.randint(100,300), 250, 250)
+        self.colliding_with_object = True
+        print("NEW")
+        while self.colliding_with_object:
+            self.this_obj = pygame.Rect(random.uniform(100 * scale_x,1100 * scale_x), random.uniform(50 * scale_y,600 * scale_y), random.uniform(175, 300), random.uniform(175, 300))
+            if len(object_array) > 0:
+                for i in object_array:
+                    self.colliding_with_object = self.this_obj.colliderect(i.this_obj)
+                    print(self.colliding_with_object)
+                    if self.colliding_with_object:
+                        break
+            else:
+                self.colliding_with_object = False
     def update(self, m_col, is_note):
         col = self.this_obj.colliderect(m_col)
         if not col:
             self.can_col = True
         if self.can_col:
             if col:
+                self.sound.play()
                 if is_note == 0:
                     self.count += 1
                     if self.count == 2:
+                        self.sound.play()
                         update_runner_array.clear()
                         update_runner_array.append(self)
                 self.can_col = False
+        pygame.draw.rect(screen, (255, 0, 0), self.this_obj)
     def _get_image(self):
         return self.note
 
@@ -124,7 +147,6 @@ while running:
     mx, my = pygame.mouse.get_pos()
     proper_pos = (mx - cx, my - cy)
     mouse_rect = pygame.Rect(mx, my, 50, 50)
-    _update_runner(update_runner_array)
 
     if len(update_runner_array) > 1:
         mask_being_rendered = black
@@ -132,11 +154,12 @@ while running:
     if len(update_runner_array) == 1:
         mask_being_rendered = update_runner_array[0]._get_image()
         mask = pygame.mask.from_surface(mask_being_rendered, 0)
+        note_position_offset = (width / 2 - mask_being_rendered.get_width() / 2, height / 2 - mask_being_rendered.get_height() / 2)
         finished_investigating = True
         update_runner_array.clear()
 
-    overlap_mask = mask.overlap_mask(mask_2, proper_pos)
-    screen.blit(overlap_mask.to_surface(None, mask_being_rendered, None), (0, 0))
+    overlap_mask = mask.overlap_mask(mask_2, (proper_pos[0] - note_position_offset[0], proper_pos[1] - note_position_offset[1]))
+    screen.blit(overlap_mask.to_surface(None, mask_being_rendered, None), note_position_offset)
 
     for i in location_areas:
         i._show_in_pos(mask_2, proper_pos)
@@ -144,15 +167,15 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_e:
                 if _check_pos(0, 0) == 2 and finished_investigating:
-                    print("hey")
                     mask_being_rendered = map
+                    note_position_offset = (0, 0)
                     mask = pygame.mask.from_surface(mask_being_rendered, 0)
                     finished_investigating = False
                 elif _check_pos(0, 0) == 2:
-                    for i in range(2):
+                    for i in range(6):
                         for i in location_areas:
                             i.currently_investigating = True
-                        objects = RandomObject(note_1)
+                        objects = RandomObject(note_1, update_runner_array, object_sfx)
                         update_runner_array.append(objects)
             match event.key:
                 case pygame.K_ESCAPE:
@@ -187,6 +210,7 @@ while running:
                         left_channel.set_volume(1,0)
         if event.type == pygame.QUIT:
             running = False
+    _update_runner(update_runner_array)
     pygame.display.flip()
     clock.tick(60)
 pygame.quit()
