@@ -1,4 +1,4 @@
-import os
+import os, socket
 
 import pygame, random
 from pygame import FULLSCREEN, Vector2
@@ -37,9 +37,10 @@ loc_x = location_to_hit.get_width()/2
 loc_y = location_to_hit.get_height()/2
 wall_sfx = pygame.mixer.Sound("../SFX/hitwall.mp3")
 walk_sfx = pygame.mixer.Sound("../SFX/walking.mp3")
-
-object_sfx = [pygame.mixer.Sound("../SFX/temporaryshit/synth.wav"), pygame.mixer.Sound("../SFX/temporaryshit/explosion.wav"), pygame.mixer.Sound("../SFX/temporaryshit/hitHurt(1).wav"), pygame.mixer.Sound("../SFX/temporaryshit/jump.wav"), pygame.mixer.Sound("../SFX/temporaryshit/pickupCoin.wav"), pygame.mixer.Sound("../SFX/temporaryshit/pickupCoin(1).wav")]
-
+print("Hello, " +socket.gethostname() + ". Thank you for your interest.")
+object_sfx = []
+for i in os.scandir("../SFX/temporaryshit"):
+    object_sfx.append(pygame.mixer.Sound(i))
 cursor = pygame.transform.scale(cursor, (150 * scale_x, 150 * scale_y))
 cx = cursor.get_width()/2
 cy = cursor.get_height()/2
@@ -56,20 +57,22 @@ update_runner_array = []
 
 mapX=6
 mapY=1
+current_layer = 0
 map_layout = [
-    [0, 11,0,0,11,6,3,3,9,9,9,11],
-    [0, 11,0,0,0,0,0,0,0,0,0,0],
-    [0, 3,3,3,11,7,0,0,9,9,9,11],
-    [0, 11,3,3,0,0,0,0,0,0,0,0],
-    [0, 11,3,3,0,0,0,0,2,1,1,1],
-    [0, 3,3,3,4,4,11,0,2,1,1,1],
-    [0, 3,3,3,11,5,0,2,11,1,1,1],
+    [0, 7,5,5,15,6,1,1,20,21,22,18],
+    [0, 7,5,5,5,5,0,0,10,10,10,10],
+    [0, 3,3,3,8,8,0,0,9,9,9,17],
+    [0, 13,3,3,0,0,0,0,0,0,0,0],
+    [0, 13,3,3,0,0,0,0,12,25,25,1],
+    [0, 3,3,3,2,2,2,11,2,25,1,1],
+    [0, 3,3,3,14,4,0,0,2,1,1,1],
     [0]
 ]
 
 map_layout.reverse()
 class InvestigateArea():
-    def __init__(self, xPos, yPos, not_investigated, investigated):
+    def __init__(self, xPos, yPos, not_investigated, investigated, num):
+        self.which_am_i = num
         self.xPos = xPos
         self.yPos = yPos
         self.not_investigated_img = not_investigated
@@ -88,8 +91,8 @@ class InvestigateArea():
 
 for y in map_layout:
     for i, x in enumerate(y):
-        if x == 11:
-            obj = InvestigateArea((2 + (i * 5)) * 20 * scale_x - loc_x, (38 - (map_layout.index(y) * 5)) * 20 * scale_y - loc_y, location_to_hit, location_hit)
+        if x > 10 and x < 20:
+            obj = InvestigateArea((2 + (i * 5)) * 20 * scale_x - loc_x, (38 - (map_layout.index(y) * 5)) * 20 * scale_y - loc_y, location_to_hit, location_hit, x)
             location_areas.append(obj)
 
 def _check_pos(change_x, change_y):
@@ -100,22 +103,16 @@ def _check_pos(change_x, change_y):
 
 class RandomObject():
     def __init__(self, note_to_be_used, object_array, sound_array):
-        if object_array != 0:
-            ran = random.randint(1, 5)
-            self.sound = sound_array[ran]
-        else:
-            self.sound = sound_array[0]
+        self.sound = sound_array[len(object_array)]
         self.count = 0
         self.can_col = True
         self.note = note_to_be_used
         self.colliding_with_object = True
-        print("NEW")
         while self.colliding_with_object:
             self.this_obj = pygame.Rect(random.uniform(100 * scale_x,1100 * scale_x), random.uniform(50 * scale_y,600 * scale_y), random.uniform(175, 300), random.uniform(175, 300))
             if len(object_array) > 0:
                 for i in object_array:
                     self.colliding_with_object = self.this_obj.colliderect(i.this_obj)
-                    print(self.colliding_with_object)
                     if self.colliding_with_object:
                         break
             else:
@@ -142,6 +139,95 @@ def _update_runner(object_arr):
     for i in object_arr:
         i.update(mouse_rect, object_arr.index(i))
 
+def _door(new_layer_num):
+    #check which area
+    return  new_layer_num
+
+def _check_investigate_area(current_num, investigate_num):
+    question = current_num
+    answer = investigate_num
+    if investigate_num > current_num:
+        question = investigate_num
+        answer = current_num
+    match question:
+        case 11:
+            if answer == 0:
+                return True
+        case 12:
+            if answer == 2:
+                return True
+        case 13:
+            if answer == 1:
+                return True
+        case 14:
+            if answer == 3:
+                return True
+        case 15:
+            if answer == 3:
+                return True
+        case 16:
+            #idk
+            return True
+        case 17:
+            if answer == 9:
+                return  True
+        case 18:
+            if answer == 10:
+                return True
+    return False
+
+def _finished_investigating(current_num, map_layout, this_thing):
+    match this_thing.which_am_i:
+        case 11:
+            #reception
+            pass
+        case 12:
+            for y in map_layout:
+                for i, x in enumerate(y):
+                    if y[i] == 3:
+                        y[i] = 1
+                    elif y[i] == 4:
+                        y[i] = 3
+        case 13:
+            #fountain
+            pass
+        case 14:
+            for y in map_layout:
+                for i, x in enumerate(y):
+                    if y[i] == 5:
+                        y[i] = 2
+                    elif x == 6:
+                        y[i] = 3
+        case 15:
+            for y in map_layout:
+                for i, x in enumerate(y):
+                    if y[i] == 7:
+                        y[i] = 3
+        case 16:
+            for y in map_layout:
+                for i, x in enumerate(y):
+                    if y[i] == 8:
+                        y[i] = 3
+        case 17:
+            #teleported into other room
+            pass
+        case 18:
+            #final
+            pass
+
+def _wall_checker(c_layer, future_layer):
+    if c_layer >= 25:
+        match c_layer:
+            case 25:
+                if future_layer == 1:
+                    return True
+    elif future_layer >= 25:
+        match future_layer:
+            case 25:
+                if c_layer == 1:
+                    return  True
+    return False
+
 while running:
     screen.fill((0,0,0))
     mx, my = pygame.mouse.get_pos()
@@ -166,12 +252,17 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_e:
-                if _check_pos(0, 0) == 2 and finished_investigating:
+                if _check_pos(0, 0) > 10 and finished_investigating:
                     mask_being_rendered = map
                     note_position_offset = (0, 0)
+                    for i in location_areas:
+                        i.currently_investigating = False
+                        if i.which_am_i == _check_pos(0, 0):
+                            _finished_investigating(_check_pos(0, 0), map_layout, i)
+                            i.investigated = True
                     mask = pygame.mask.from_surface(mask_being_rendered, 0)
                     finished_investigating = False
-                elif _check_pos(0, 0) == 2:
+                elif _check_pos(0, 0) > 10:
                     for i in range(6):
                         for i in location_areas:
                             i.currently_investigating = True
@@ -181,30 +272,50 @@ while running:
                 case pygame.K_ESCAPE:
                     running = False
                 case pygame.K_w:
-                    if _check_pos(0,1) != 0:
+                    num_to_check = _check_pos(0, 1)
+                    if num_to_check == current_layer or _check_investigate_area(current_layer, num_to_check) or _wall_checker(current_layer, num_to_check):
+                        current_layer = num_to_check
                         mapY += 1
                         walk_sfx.play()
+                    elif num_to_check == current_layer + 1 and not current_layer >= 11 or num_to_check == current_layer - 1 and not current_layer >= 11:
+                        current_layer = _door(num_to_check)
+                        object_sfx[1].play()
                     else:
                         wall_sfx.play()
-                        left_channel.set_volume(1,1)
+                        left_channel.set_volume(1, 1)
                 case pygame.K_s:
-                    if _check_pos(0,-1) != 0:
+                    num_to_check = _check_pos(0, -1)
+                    if num_to_check == current_layer or _check_investigate_area(current_layer, num_to_check) or _wall_checker(current_layer, num_to_check):
+                        current_layer = num_to_check
                         mapY -= 1
                         walk_sfx.play()
+                    elif num_to_check == current_layer + 1 and not current_layer >= 11 or num_to_check == current_layer - 1 and not current_layer >= 11:
+                        current_layer = _door(num_to_check)
+                        object_sfx[1].play()
                     else:
                         wall_sfx.play()
                         left_channel.set_volume(0.5,0.5)
                 case pygame.K_d:
-                    if _check_pos(1,0) != 0:
+                    num_to_check = _check_pos(1, 0)
+                    if num_to_check == current_layer or _check_investigate_area(current_layer, num_to_check) or _wall_checker(current_layer, num_to_check):
+                        current_layer = num_to_check
                         mapX += 1
                         walk_sfx.play()
+                    elif num_to_check == current_layer + 1 and not current_layer >= 11 or num_to_check == current_layer - 1 and not current_layer >= 11:
+                        current_layer = _door(num_to_check)
+                        object_sfx[1].play()
                     else:
                         wall_sfx.play()
                         left_channel.set_volume(0,1)
                 case pygame.K_a:
-                    if _check_pos(-1,0) != 0:
+                    num_to_check = _check_pos(-1, 0)
+                    if num_to_check == current_layer or _check_investigate_area(current_layer, num_to_check) or _wall_checker(current_layer, num_to_check):
+                        current_layer = num_to_check
                         mapX -= 1
                         walk_sfx.play()
+                    elif num_to_check == current_layer + 1 and not current_layer >= 11 or num_to_check == current_layer - 1 and not current_layer >= 11:
+                        current_layer = _door(num_to_check)
+                        object_sfx[1].play()
                     else:
                         wall_sfx.play()
                         left_channel.set_volume(1,0)
