@@ -22,6 +22,12 @@ scale_y = screen.get_height() / 720
 map = pygame.image.load("../Sprites/map.png").convert_alpha()
 map = pygame.transform.scale(map, (64 * 20 * scale_x, 36 * 20 * scale_y))
 
+slider_body = pygame.image.load("../Sprites/slider.png").convert_alpha()
+#slider_body = pygame.transform.scale(slider_body, (200 * 2 * scale_x, 100 * 2 * scale_y))
+slider_knob = pygame.image.load("../Sprites/slider_knob.png").convert_alpha()
+#slider_knob = pygame.transform.scale(slider_knob, (200 * 2 * scale_x, 100 * 2 * scale_y))
+speaker_symbol = pygame.image.load("../Sprites/speaker_symbol.png").convert_alpha()
+speaker_symbol = pygame.transform.scale(speaker_symbol, (50 * 2 * scale_x, 50 * 2 * scale_y))
 start_button = pygame.image.load("../Sprites/start_button.png").convert_alpha()
 quit_button = pygame.image.load("../Sprites/quit_button.png").convert_alpha()
 start_button = pygame.transform.scale(start_button, (200 * 2 * scale_x, 100 * 2 * scale_y))
@@ -56,7 +62,7 @@ running = True
 mask = pygame.mask.from_surface(map, 0)
 mask_2 = pygame.mask.from_surface(cursor, 0)
 menu_mask_array = [start_button, quit_button, title]
-menu_pos_array = [(0, 400), (1200, 800), (800, 50)]
+menu_pos_array = [(0 * scale_x, 200 * scale_y), (700 * scale_x, 500 * scale_y), (500 * scale_x, 50 * scale_y)]
 mask_being_rendered = map
 note_position_offset = Vector2(0, 0)
 finished_investigating = False
@@ -234,17 +240,101 @@ def _wall_checker(c_layer, future_layer):
                 if c_layer == 1:
                     return  True
     return False
-def _menu(mask_array, pos_array, mouse_mask, proper_pos):
+menu = True
+def _menu(mask_array, pos_array, mouse_mask, proper_pos, is_clicked):
     for i in mask_array:
         mask = pygame.mask.from_surface(i, 0)
         position = pos_array[mask_array.index(i)]
+        button_rect = pygame.Rect(position[0], position[1], i.get_width(), i.get_height())
         overlapping_mask = mask.overlap_mask(mouse_mask, (proper_pos[0] - position[0], proper_pos[1] - position[1]))
         screen.blit(overlapping_mask.to_surface(None, i, None), position)
+        if button_rect.collidepoint(proper_pos[0], proper_pos[1]) and is_clicked:
+            return mask_array.index(i)
+
+
+class Slider:
+    def __init__(self, pos: tuple, size: tuple, initial_val: float, min: int, max: int, slider_body, slider_knob, speaker) -> None:
+        self.pos = pos
+        self.size = size
+
+        self.speaker = speaker
+        self.speaker_mask = pygame.mask.from_surface(self.speaker, 0)
+        self.slider_body = slider_body
+        self.slider_body_mask = pygame.mask.from_surface(self.slider_body, 0)
+        self.slider_knob = slider_knob
+        self.slider_knob_mask = pygame.mask.from_surface(self.slider_knob, 0)
+        self.slider_left_pos = self.pos[0] - (size[0] // 2)
+        self.slider_right_pos = self.pos[0] + (size[0] // 2)
+        self.slider_top_pos = self.pos[1] - (size[1] // 2)
+
+        self.min = min
+        self.max = max
+        self.initial_val = (self.slider_right_pos - self.slider_left_pos) * initial_val  # <- percentage
+
+        self.offset = self.initial_val - 5
+        self.container_rect = pygame.Rect(self.slider_left_pos, self.slider_top_pos, self.size[0], self.size[1])
+        self.button_rect = pygame.Rect(self.slider_left_pos + self.initial_val - 5, self.slider_top_pos, 10,
+                                       self.size[1])
+        self.speaker_pos = (self.slider_left_pos - 200, self.slider_top_pos - 25)
+        self.slider_body_pos = (self.slider_left_pos, self.slider_top_pos)
+        self.slider_knob_pos = (self.slider_left_pos + self.offset, self.slider_top_pos + 20)
+    def move_slider(self, mouse_pos):
+        pos = mouse_pos[0]
+        if pos < self.slider_left_pos:
+            pos = self.slider_left_pos
+        if pos > self.slider_right_pos:
+            pos = self.slider_right_pos
+        self.offset = pos - 350
+        self.slider_knob_pos = (self.slider_left_pos + self.offset, self.slider_top_pos + 20)
+
+    def render(self, app, mouse_mask, proper_pos):
+        overlapping_mask_speaker = self.speaker_mask.overlap_mask(mouse_mask, (proper_pos[0] - self.speaker_pos[0], proper_pos[1] - self.speaker_pos[1]))
+        screen.blit(overlapping_mask_speaker.to_surface(None, self.speaker, None), self.speaker_pos)
+        overlapping_mask_slider_body = self.slider_body_mask.overlap_mask(mouse_mask, (proper_pos[0] - self.slider_body_pos[0], proper_pos[1] - self.slider_body_pos[1]))
+        screen.blit(overlapping_mask_slider_body.to_surface(None, self.slider_body, None), self.slider_body_pos)
+        overlapping_mask_slider_knob = self.slider_knob_mask.overlap_mask(mouse_mask, (
+        proper_pos[0] - self.slider_knob_pos[0], proper_pos[1] - self.slider_knob_pos[1]))
+        screen.blit(overlapping_mask_slider_knob.to_surface(None, self.slider_knob, None), self.slider_knob_pos)
+        
+    def get_value(self):
+        val_range = self.slider_right_pos - self.slider_left_pos - 1
+        button_val = self.button_rect.centerx - self.slider_left_pos
+
+        return (button_val / val_range) * (self.max - self.min) + self.min
+click = False
+slider = Slider((300 * scale_x,600 * scale_y), (200 * scale_x,100 * scale_y), 0.5, 0, 100, slider_body, slider_knob, speaker_symbol)
 while running:
     screen.fill((0,0,0))
     mx, my = pygame.mouse.get_pos()
     proper_pos = (mx - cx, my - cy)
     mouse_rect = pygame.Rect(mx, my, 50, 50)
+    while menu:
+        mouse = pygame.mouse.get_pressed()
+        screen.fill((0, 0, 0))
+        mx, my = pygame.mouse.get_pos()
+        proper_pos = (mx - cx, my - cy)
+        mouse_rect = pygame.Rect(mx, my, 50, 50)
+        match _menu(menu_mask_array, menu_pos_array, mask_2, proper_pos, click):
+            case 0:
+                menu = False
+            case 1:
+                running = False
+                menu = False
+        slider.render(screen, mask_2, proper_pos)
+        if slider.container_rect.collidepoint((mx,my)) and mouse[0]:
+            slider.move_slider((mx,my))
+
+        click = False
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    click = True
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    menu = False
+        pygame.display.flip()
+        clock.tick(60)
+
 
     if len(update_runner_array) > 1:
         mask_being_rendered = black
@@ -257,7 +347,8 @@ while running:
         update_runner_array.clear()
 
     overlap_mask = mask.overlap_mask(mask_2, (proper_pos[0] - note_position_offset[0], proper_pos[1] - note_position_offset[1]))
-    screen.blit(overlap_mask.to_surface(None, mask_being_rendered, None), note_position_offset)
+    if running:
+        screen.blit(overlap_mask.to_surface(None, mask_being_rendered, None), note_position_offset)
 
     for i in location_areas:
         i._show_in_pos(mask_2, proper_pos)
@@ -331,10 +422,9 @@ while running:
                     else:
                         wall_sfx.play()
                         left_channel.set_volume(1,0)
-        if event.type == pygame.QUIT:
+        if event.type ==pygame.QUIT:
             running = False
     _update_runner(update_runner_array)
-    _menu(menu_mask_array, menu_pos_array, mask_2, proper_pos)
     pygame.display.flip()
     clock.tick(60)
 pygame.quit()
