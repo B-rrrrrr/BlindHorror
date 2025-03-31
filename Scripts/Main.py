@@ -22,6 +22,12 @@ scale_y = screen.get_height() / 720
 map = pygame.image.load("../Sprites/map.png").convert_alpha()
 map = pygame.transform.scale(map, (64 * 20 * scale_x, 36 * 20 * scale_y))
 
+start_button = pygame.image.load("../Sprites/start_button.png").convert_alpha()
+quit_button = pygame.image.load("../Sprites/quit_button.png").convert_alpha()
+start_button = pygame.transform.scale(start_button, (200 * 2 * scale_x, 100 * 2 * scale_y))
+quit_button = pygame.transform.scale(quit_button, (200 * 2 * scale_x, 100 * 2 * scale_y))
+title = pygame.image.load("../Sprites/title.png").convert_alpha()
+title = pygame.transform.scale(title, (200 * 3 * scale_x, 100 * 3 * scale_y))
 note_1 = pygame.image.load("../Sprites/note.png").convert_alpha()
 note_1 = pygame.transform.scale(note_1, (205 * 2 * scale_x, 246 * 2 * scale_y))
 cursor = pygame.image.load("../Sprites/cursor.png").convert_alpha()
@@ -49,6 +55,8 @@ running = True
 
 mask = pygame.mask.from_surface(map, 0)
 mask_2 = pygame.mask.from_surface(cursor, 0)
+menu_mask_array = [start_button, quit_button, title]
+menu_pos_array = [(0, 400), (1200, 800), (800, 50)]
 mask_being_rendered = map
 note_position_offset = Vector2(0, 0)
 finished_investigating = False
@@ -214,7 +222,6 @@ def _finished_investigating(current_num, map_layout, this_thing):
         case 18:
             #final
             pass
-
 def _wall_checker(c_layer, future_layer):
     if c_layer >= 25:
         match c_layer:
@@ -227,7 +234,12 @@ def _wall_checker(c_layer, future_layer):
                 if c_layer == 1:
                     return  True
     return False
-
+def _menu(mask_array, pos_array, mouse_mask, proper_pos):
+    for i in mask_array:
+        mask = pygame.mask.from_surface(i, 0)
+        position = pos_array[mask_array.index(i)]
+        overlapping_mask = mask.overlap_mask(mouse_mask, (proper_pos[0] - position[0], proper_pos[1] - position[1]))
+        screen.blit(overlapping_mask.to_surface(None, i, None), position)
 while running:
     screen.fill((0,0,0))
     mx, my = pygame.mouse.get_pos()
@@ -322,6 +334,7 @@ while running:
         if event.type == pygame.QUIT:
             running = False
     _update_runner(update_runner_array)
+    _menu(menu_mask_array, menu_pos_array, mask_2, proper_pos)
     pygame.display.flip()
     clock.tick(60)
 pygame.quit()
