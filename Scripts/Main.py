@@ -172,7 +172,7 @@ class RandomObject():
                         update_runner_array.clear()
                         update_runner_array.append(self)
                 self.can_col = False
-        pygame.draw.rect(screen, (255, 0, 0), self.this_obj)
+        #pygame.draw.rect(screen, (255, 0, 0), self.this_obj)
     def _get_image(self):
         return self.note
 
@@ -422,64 +422,68 @@ while running:
                 case pygame.K_ESCAPE:
                     running = False
                 case pygame.K_w:
-                    num_to_check = _check_pos(0, 1)
-                    if num_to_check == current_layer or _check_investigate_area(current_layer, num_to_check) or _wall_checker(current_layer, num_to_check):
-                        current_layer = num_to_check
-                        mapY += 1
-                        walk_sfx.play()
-                    elif num_to_check == current_layer + 1 and not current_layer >= 11 or num_to_check == current_layer - 1 and not current_layer >= 11:
-                        current_layer = _door(num_to_check)
-                        open_door_sfx.play()
-                    else:
-                        if _check_door(mapX, mapY + 1):
-                            locked_door_sfx.play()
+                    if not pygame.mixer.get_busy():
+                        num_to_check = _check_pos(0, 1)
+                        if num_to_check == current_layer or _check_investigate_area(current_layer, num_to_check) or _wall_checker(current_layer, num_to_check):
+                            current_layer = num_to_check
+                            mapY += 1
+                            walk_sfx.play()
+                        elif num_to_check == current_layer + 1 and not current_layer >= 11 or num_to_check == current_layer - 1 and not current_layer >= 11:
+                            current_layer = _door(num_to_check)
+                            open_door_sfx.play()
                         else:
-                            wall_sfx.play()
+                            if _check_door(mapX, mapY + 1):
+                                locked_door_sfx.play()
+                            else:
+                                wall_sfx.play()
                             left_channel.set_volume(1, 1)
                 case pygame.K_s:
-                    num_to_check = _check_pos(0, -1)
-                    if num_to_check == current_layer or _check_investigate_area(current_layer, num_to_check) or _wall_checker(current_layer, num_to_check):
-                        current_layer = num_to_check
-                        mapY -= 1
-                        walk_sfx.play()
-                    elif num_to_check == current_layer + 1 and not current_layer >= 11 or num_to_check == current_layer - 1 and not current_layer >= 11:
-                        current_layer = _door(num_to_check)
-                        open_door_sfx.play()
-                    else:
-                        if _check_door(mapX, mapY - 1):
-                            locked_door_sfx.play()
+                    if not pygame.mixer.get_busy():
+                        num_to_check = _check_pos(0, -1)
+                        if num_to_check == current_layer or _check_investigate_area(current_layer, num_to_check) or _wall_checker(current_layer, num_to_check):
+                            current_layer = num_to_check
+                            mapY -= 1
+                            walk_sfx.play()
+                        elif num_to_check == current_layer + 1 and not current_layer >= 11 or num_to_check == current_layer - 1 and not current_layer >= 11:
+                            current_layer = _door(num_to_check)
+                            open_door_sfx.play()
                         else:
-                            wall_sfx.play()
+                            if _check_door(mapX, mapY - 1):
+                                locked_door_sfx.play()
+                            else:
+                                wall_sfx.play()
                             left_channel.set_volume(0.5,0.5)
                 case pygame.K_d:
-                    num_to_check = _check_pos(1, 0)
-                    if num_to_check == current_layer or _check_investigate_area(current_layer, num_to_check) or _wall_checker(current_layer, num_to_check):
-                        current_layer = num_to_check
-                        mapX += 1
-                        walk_sfx.play()
-                    elif num_to_check == current_layer + 1 and not current_layer >= 11 or num_to_check == current_layer - 1 and not current_layer >= 11:
-                        current_layer = _door(num_to_check)
-                        open_door_sfx.play()
-                    else:
-                        if _check_door(mapX + 1, mapY):
-                            locked_door_sfx.play()
+                    if not pygame.mixer.get_busy():
+                        num_to_check = _check_pos(1, 0)
+                        if num_to_check == current_layer or _check_investigate_area(current_layer, num_to_check) or _wall_checker(current_layer, num_to_check):
+                            current_layer = num_to_check
+                            mapX += 1
+                            walk_sfx.play()
+                        elif num_to_check == current_layer + 1 and not current_layer >= 11 or num_to_check == current_layer - 1 and not current_layer >= 11:
+                            current_layer = _door(num_to_check)
+                            open_door_sfx.play()
                         else:
-                            wall_sfx.play()
+                            if _check_door(mapX + 1, mapY):
+                                locked_door_sfx.play()
+                            else:
+                                wall_sfx.play()
                             left_channel.set_volume(0,1)
                 case pygame.K_a:
-                    num_to_check = _check_pos(-1, 0)
-                    if num_to_check == current_layer or _check_investigate_area(current_layer, num_to_check) or _wall_checker(current_layer, num_to_check):
-                        current_layer = num_to_check
-                        mapX -= 1
-                        walk_sfx.play()
-                    elif num_to_check == current_layer + 1 and not current_layer >= 11 or num_to_check == current_layer - 1 and not current_layer >= 11:
-                        current_layer = _door(num_to_check)
-                        open_door_sfx.play()
-                    else:
-                        if _check_door(mapX - 1, mapY):
-                            locked_door_sfx.play()
+                    if not pygame.mixer.get_busy():
+                        num_to_check = _check_pos(-1, 0)
+                        if num_to_check == current_layer or _check_investigate_area(current_layer, num_to_check) or _wall_checker(current_layer, num_to_check):
+                            current_layer = num_to_check
+                            mapX -= 1
+                            walk_sfx.play()
+                        elif num_to_check == current_layer + 1 and not current_layer >= 11 or num_to_check == current_layer - 1 and not current_layer >= 11:
+                            current_layer = _door(num_to_check)
+                            open_door_sfx.play()
                         else:
-                            wall_sfx.play()
+                            if _check_door(mapX - 1, mapY):
+                                locked_door_sfx.play()
+                            else:
+                                wall_sfx.play()
                             left_channel.set_volume(1,0)
         if event.type ==pygame.QUIT:
             running = False
