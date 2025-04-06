@@ -48,7 +48,7 @@ location_areas = []
 loc_x = location_to_hit.get_width()/2
 loc_y = location_to_hit.get_height()/2
 wall_sfx = pygame.mixer.Sound("../SFX/hitwall.mp3")
-walk_sfx = pygame.mixer.Sound("../SFX/walking.mp3")
+walk_sfx = pygame.mixer.Sound("../SFX/hitwall.mp3")
 locked_door_sfx = pygame.mixer.Sound("../SFX/locked-door-88359.mp3")
 open_door_sfx = pygame.mixer.Sound("../SFX/main-door-opening-closing-38280.mp3")
 print("Hello, " +socket.gethostname() + ". Thank you for your interest.")
@@ -74,15 +74,15 @@ finished_investigating = False
 
 update_runner_array = []
 
-mapX=8
-mapY=1
-current_layer = 0
+mapX=13
+mapY=5
+current_layer = 9
 map_layout = [
     [0, 16,26,26,26,26,26,26,26,26,26,26,26,26],
     [0, 4,4,26,26,26,26,26,26,26,26,26,26,26],
-    [0, 4,4,7,5,5,15,6,2,2,20,21,22,18],
-    [0, 4,4,7,5,5,5,5,0,0,10,10,10,10],
-    [0, 0,0,3,3,3,8,8,0,0,9,9,9,17],
+    [0, 4,4,7,5,5,15,6,2,2,20,21,22,19],
+    [0, 4,4,7,5,5,5,5,0,0,10,27,27,27],
+    [0, 0,0,3,3,3,17,8,0,0,9,9,9,18],
     [0, 0,0,13,3,3,0,0,0,0,0,0,0,0],
     [0, 0,0,13,3,3,0,0,0,0,12,25,25,1],
     [0, 0,0,3,3,3,2,2,2,11,2,25,1,1],
@@ -214,10 +214,14 @@ def _check_investigate_area(current_num, investigate_num):
             if answer == 3:
                 return True
         case 17:
+            if answer == 3:
+                return True
+        case 18:
             if answer == 9:
                 return  True
-        case 18:
-            if answer == 10:
+        case 19:
+            print("answer" + str(answer))
+            if answer == 27 or answer == 10:
                 return True
     return False
 
@@ -277,6 +281,9 @@ def _finished_investigating(current_num, map_layout, this_thing, door_layout):
             #teleported into other room
             pass
         case 18:
+            # skelleton
+            pass
+        case 19:
             #final
             pass
 def _wall_checker(c_layer, future_layer):
@@ -285,11 +292,17 @@ def _wall_checker(c_layer, future_layer):
             case 25:
                 if future_layer == 1:
                     return True
+            case 27:
+                if future_layer == 10 or future_layer >= 19 and future_layer <= 22:
+                    return True
     elif future_layer >= 25:
         match future_layer:
             case 25:
                 if c_layer == 1:
                     return  True
+            case 27:
+                if c_layer == 10 or future_layer >= 20 and future_layer <= 22:
+                    return True
     return False
 menu = True
 def _menu(mask_array, pos_array, mouse_mask, proper_pos, is_clicked):
@@ -405,6 +418,7 @@ while running:
         i._show_in_pos(mask_2, proper_pos)
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
+            print(current_layer)
             if event.key == pygame.K_e:
                 if _check_pos(0, 0) > 10 and finished_investigating:
                     mask_being_rendered = map
@@ -417,11 +431,23 @@ while running:
                     mask = pygame.mask.from_surface(mask_being_rendered, 0)
                     finished_investigating = False
                 elif _check_pos(0, 0) > 10:
-                    for i in range(5):
+                    if _check_pos(0, 0) == 17:
+                        mapX = 13
+                        mapY = 5
+                        current_layer = 9
                         for i in location_areas:
-                            i.currently_investigating = True
-                        objects = RandomObject(note_1, update_runner_array, object_sfx, _check_pos(0, 0), final_invest_sfx)
-                        update_runner_array.append(objects)
+                            i.currently_investigating = False
+                            if i.which_am_i == 17:
+                                _finished_investigating(_check_pos(0, 0), map_layout, i, door_layout)
+                                i.investigated = True
+                    elif _check_pos(0, 0) > 19:
+                        print(_check_pos(0, 0))
+                    else:
+                        for i in range(5):
+                            for i in location_areas:
+                                i.currently_investigating = True
+                            objects = RandomObject(note_1, update_runner_array, object_sfx, _check_pos(0, 0), final_invest_sfx)
+                            update_runner_array.append(objects)
             if running:
                 match event.key:
                     case pygame.K_ESCAPE:
