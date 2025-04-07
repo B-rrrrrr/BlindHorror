@@ -220,7 +220,15 @@ def _check_investigate_area(current_num, investigate_num):
             if answer == 9:
                 return  True
         case 19:
-            print("answer" + str(answer))
+            if answer == 27 or answer == 10:
+                return True
+        case 20:
+            if answer == 27 or answer == 10:
+                return True
+        case 21:
+            if answer == 27 or answer == 10:
+                return True
+        case 22:
             if answer == 27 or answer == 10:
                 return True
     return False
@@ -285,6 +293,12 @@ def _finished_investigating(current_num, map_layout, this_thing, door_layout):
             pass
         case 19:
             #final
+            pass
+        case 20:
+            pass
+        case 21:
+            pass
+        case 22:
             pass
 def _wall_checker(c_layer, future_layer):
     if c_layer >= 25:
