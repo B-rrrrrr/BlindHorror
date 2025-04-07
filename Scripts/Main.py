@@ -219,18 +219,6 @@ def _check_investigate_area(current_num, investigate_num):
         case 18:
             if answer == 9:
                 return  True
-        case 19:
-            if answer == 27 or answer == 10:
-                return True
-        case 20:
-            if answer == 27 or answer == 10:
-                return True
-        case 21:
-            if answer == 27 or answer == 10:
-                return True
-        case 22:
-            if answer == 27 or answer == 10:
-                return True
     return False
 
 def _finished_investigating(current_num, map_layout, this_thing, door_layout):
@@ -300,17 +288,42 @@ def _finished_investigating(current_num, map_layout, this_thing, door_layout):
             pass
         case 22:
             pass
-def _wall_checker(c_layer, future_layer):
-    if c_layer >= 25:
+def _wall_checker(c_layer, future_layer, door_sfx):
+    if c_layer >= 20:
         match c_layer:
+            case 20:
+                if future_layer == 10 or future_layer == 27:
+                    door_sfx.play()
+                    return True
+            case 21:
+                if future_layer == 10 or future_layer == 27:
+                    door_sfx.play()
+                    return True
+            case 22:
+                if future_layer == 10 or future_layer == 27:
+                    door_sfx.play()
+                    return True
             case 25:
                 if future_layer == 1:
                     return True
             case 27:
                 if future_layer == 10 or future_layer >= 19 and future_layer <= 22:
+                    door_sfx.play()
                     return True
-    elif future_layer >= 25:
+    elif future_layer >= 20:
         match future_layer:
+            case 20:
+                if c_layer == 10 or future_layer == 27:
+                    door_sfx.play()
+                    return True
+            case 21:
+                if c_layer == 10 or future_layer == 27:
+                    door_sfx.play()
+                    return True
+            case 22:
+                if c_layer == 10 or future_layer == 27:
+                    door_sfx.play()
+                    return True
             case 25:
                 if c_layer == 1:
                     return  True
@@ -469,7 +482,7 @@ while running:
                     case pygame.K_w:
                         if not pygame.mixer.get_busy():
                             num_to_check = _check_pos(0, 1)
-                            if num_to_check == current_layer or _check_investigate_area(current_layer, num_to_check) or _wall_checker(current_layer, num_to_check):
+                            if num_to_check == current_layer or _check_investigate_area(current_layer, num_to_check) or _wall_checker(current_layer, num_to_check, open_door_sfx):
                                 current_layer = num_to_check
                                 mapY += 1
                                 walk_sfx.play()
@@ -486,7 +499,7 @@ while running:
                     case pygame.K_s:
                         if not pygame.mixer.get_busy():
                             num_to_check = _check_pos(0, -1)
-                            if num_to_check == current_layer or _check_investigate_area(current_layer, num_to_check) or _wall_checker(current_layer, num_to_check):
+                            if num_to_check == current_layer or _check_investigate_area(current_layer, num_to_check) or _wall_checker(current_layer, num_to_check, open_door_sfx):
                                 current_layer = num_to_check
                                 mapY -= 1
                                 walk_sfx.play()
@@ -503,7 +516,7 @@ while running:
                     case pygame.K_d:
                         if not pygame.mixer.get_busy():
                             num_to_check = _check_pos(1, 0)
-                            if num_to_check == current_layer or _check_investigate_area(current_layer, num_to_check) or _wall_checker(current_layer, num_to_check):
+                            if num_to_check == current_layer or _check_investigate_area(current_layer, num_to_check) or _wall_checker(current_layer, num_to_check, open_door_sfx):
                                 current_layer = num_to_check
                                 mapX += 1
                                 walk_sfx.play()
@@ -520,7 +533,7 @@ while running:
                     case pygame.K_a:
                         if not pygame.mixer.get_busy():
                             num_to_check = _check_pos(-1, 0)
-                            if num_to_check == current_layer or _check_investigate_area(current_layer, num_to_check) or _wall_checker(current_layer, num_to_check):
+                            if num_to_check == current_layer or _check_investigate_area(current_layer, num_to_check) or _wall_checker(current_layer, num_to_check, open_door_sfx):
                                 current_layer = num_to_check
                                 mapX -= 1
                                 walk_sfx.play()
