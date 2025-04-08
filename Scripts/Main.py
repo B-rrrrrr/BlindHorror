@@ -102,9 +102,25 @@ door_layout = [
     [0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     [0, 0,0,0,0,0,0,0,1,0,0,0,0,0,0]
 ]
-
+floor_layout = [
+    [0, 8,26,26,26,26,26,26,26,26,26,26,26,26],
+    [0, 8,8,26,26,26,26,26,26,26,26,26,26,26],
+    [0, 8,8,7,0,0,6,6,2,2,11,11,11,12],
+    [0, 8,8,7,0,0,0,0,0,0,0,0,0,0],
+    [0, 26,26,3,3,3,9,9,0,0,10,10,10,10],
+    [0, 26,26,3,3,3,0,0,0,0,0,0,0,0],
+    [0, 26,26,3,3,3,0,0,0,0,2,1,1,1],
+    [0, 26,26,3,3,3,4,4,4,0,2,1,1,1],
+    [0, 26,26,3,3,3,5,5,0,0,2,1,1,1],
+    [0]
+]
+walk_sfx_array = []
+for i in os.scandir("../SFX/final_invests"):
+    walk_sfx_array.append(i)
 map_layout.reverse()
 door_layout.reverse()
+floor_layout.reverse()
+
 class InvestigateArea():
     def __init__(self, xPos, yPos, not_investigated, investigated, num):
         self.which_am_i = num
@@ -138,10 +154,14 @@ def _check_pos(change_x, change_y):
 
 def _check_door(x, y):
     new_list = door_layout[y]
-    print(new_list[x])
     if new_list[x] == 1 or new_list[x] == 2 or new_list[x] == 9:
         return True
     return False
+
+def _check_floor(x, y, walk_sfx_array):
+    new_list = floor_layout[y]
+    print("hey" + str(new_list[x]))
+    #return walk_sfx_array[new_list[x]]
 
 class RandomObject():
     def __init__(self, note_to_be_used, object_array, sound_array, which_invest, final_invest_sfx):
@@ -485,7 +505,8 @@ while running:
                             if num_to_check == current_layer or _check_investigate_area(current_layer, num_to_check) or _wall_checker(current_layer, num_to_check, open_door_sfx):
                                 current_layer = num_to_check
                                 mapY += 1
-                                walk_sfx.play()
+                                if not pygame.mixer.get_busy():
+                                    walk_sfx.play()
                             elif num_to_check == current_layer + 1 and not current_layer >= 11 or num_to_check == current_layer - 1 and not current_layer >= 11:
                                 current_layer = _door(num_to_check)
                                 mapY += 1
@@ -502,7 +523,8 @@ while running:
                             if num_to_check == current_layer or _check_investigate_area(current_layer, num_to_check) or _wall_checker(current_layer, num_to_check, open_door_sfx):
                                 current_layer = num_to_check
                                 mapY -= 1
-                                walk_sfx.play()
+                                if not pygame.mixer.get_busy():
+                                    walk_sfx.play()
                             elif num_to_check == current_layer + 1 and not current_layer >= 11 or num_to_check == current_layer - 1 and not current_layer >= 11:
                                 current_layer = _door(num_to_check)
                                 mapY -= 1
@@ -519,7 +541,8 @@ while running:
                             if num_to_check == current_layer or _check_investigate_area(current_layer, num_to_check) or _wall_checker(current_layer, num_to_check, open_door_sfx):
                                 current_layer = num_to_check
                                 mapX += 1
-                                walk_sfx.play()
+                                if not pygame.mixer.get_busy():
+                                    walk_sfx.play()
                             elif num_to_check == current_layer + 1 and not current_layer >= 11 or num_to_check == current_layer - 1 and not current_layer >= 11:
                                 current_layer = _door(num_to_check)
                                 mapX += 1
@@ -536,7 +559,8 @@ while running:
                             if num_to_check == current_layer or _check_investigate_area(current_layer, num_to_check) or _wall_checker(current_layer, num_to_check, open_door_sfx):
                                 current_layer = num_to_check
                                 mapX -= 1
-                                walk_sfx.play()
+                                if not pygame.mixer.get_busy():
+                                    walk_sfx.play()
                             elif num_to_check == current_layer + 1 and not current_layer >= 11 or num_to_check == current_layer - 1 and not current_layer >= 11:
                                 current_layer = _door(num_to_check)
                                 mapX -= 1
@@ -547,6 +571,7 @@ while running:
                                 else:
                                     wall_sfx.play()
                                 left_channel.set_volume(1,0)
+                print(_check_floor(mapX, mapY, walk_sfx_array))
         if event.type ==pygame.QUIT:
             running = False
     _update_runner(update_runner_array)
