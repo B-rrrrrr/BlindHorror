@@ -115,11 +115,17 @@ floor_layout = [
     [0]
 ]
 walk_sfx_array = []
-for i in os.scandir("../SFX/final_invests"):
-    walk_sfx_array.append(i)
+for i in os.scandir("../SFX/walking_sfx"):
+    walk_sfx_array.append(os.path.basename(i))
 map_layout.reverse()
 door_layout.reverse()
 floor_layout.reverse()
+walk_sfx_array.sort()
+for i in walk_sfx_array:
+    sound = "../SFX/walking_sfx/" + i
+    pos = walk_sfx_array.index(i)
+    walk_sfx_array.remove(i)
+    walk_sfx_array.insert(pos, pygame.mixer.Sound(sound))
 
 class InvestigateArea():
     def __init__(self, xPos, yPos, not_investigated, investigated, num):
@@ -161,7 +167,7 @@ def _check_door(x, y):
 def _check_floor(x, y, walk_sfx_array):
     new_list = floor_layout[y]
     print("hey" + str(new_list[x]))
-    #return walk_sfx_array[new_list[x]]
+    return walk_sfx_array[new_list[x]]
 
 class RandomObject():
     def __init__(self, note_to_be_used, object_array, sound_array, which_invest, final_invest_sfx):
@@ -244,7 +250,7 @@ def _check_investigate_area(current_num, investigate_num):
 def _finished_investigating(current_num, map_layout, this_thing, door_layout):
     match this_thing.which_am_i:
         case 11:
-            #reception
+            #00_reception
             pass
         case 12:
             for y in map_layout:
@@ -260,7 +266,7 @@ def _finished_investigating(current_num, map_layout, this_thing, door_layout):
                     elif y[i] == 2:
                         y[i] = 1
         case 13:
-            #fountain
+            #02_fountain
             pass
         case 14:
             for y in map_layout:
