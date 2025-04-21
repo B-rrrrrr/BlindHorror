@@ -74,9 +74,9 @@ finished_investigating = False
 
 update_runner_array = []
 
-mapX=13
-mapY=5
-current_layer = 9
+mapX=8
+mapY=1
+current_layer = 0
 map_layout = [
     [0, 16,26,26,26,26,26,26,26,26,26,26,26,26],
     [0, 4,4,26,26,26,26,26,26,26,26,26,26,26],
@@ -115,17 +115,26 @@ floor_layout = [
     [0]
 ]
 walk_sfx_array = []
+wall_sfx_array = []
 for i in os.scandir("../SFX/walking_sfx"):
     walk_sfx_array.append(os.path.basename(i))
+for i in os.scandir("../SFX/walls_sfx"):
+    wall_sfx_array.append(os.path.basename(i))
 map_layout.reverse()
 door_layout.reverse()
 floor_layout.reverse()
 walk_sfx_array.sort()
+wall_sfx_array.sort()
 for i in walk_sfx_array:
     sound = "../SFX/walking_sfx/" + i
     pos = walk_sfx_array.index(i)
     walk_sfx_array.remove(i)
     walk_sfx_array.insert(pos, pygame.mixer.Sound(sound))
+for i in wall_sfx_array:
+    sound = "../SFX/walls_sfx/" + i
+    pos = wall_sfx_array.index(i)
+    wall_sfx_array.remove(i)
+    wall_sfx_array.insert(pos, pygame.mixer.Sound(sound))
 
 class InvestigateArea():
     def __init__(self, xPos, yPos, not_investigated, investigated, num):
@@ -164,10 +173,14 @@ def _check_door(x, y):
         return True
     return False
 
-def _check_floor(x, y, walk_sfx_array):
+def _check_floor(x, y, walk_sfx_array, wall_sfx_array):
     new_list = floor_layout[y]
-    print("hey" + str(new_list[x]))
-    return walk_sfx_array[new_list[x]]
+    wall_num_add = 0
+    if new_list[x] == 8:
+        wall_num_add = 1
+    elif new_list[x] >= 9:
+        wall_num_add = 2
+    return walk_sfx_array[new_list[x]], wall_sfx_array[new_list[x] - wall_num_add]
 
 class RandomObject():
     def __init__(self, note_to_be_used, object_array, sound_array, which_invest, final_invest_sfx):
@@ -471,7 +484,6 @@ while running:
         i._show_in_pos(mask_2, proper_pos)
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
-            print(current_layer)
             if event.key == pygame.K_e:
                 if _check_pos(0, 0) > 10 and finished_investigating:
                     mask_being_rendered = map
@@ -577,7 +589,8 @@ while running:
                                 else:
                                     wall_sfx.play()
                                 left_channel.set_volume(1,0)
-                print(_check_floor(mapX, mapY, walk_sfx_array))
+                walk_sfx = pygame.mixer.Sound(_check_floor(mapX, mapY, walk_sfx_array, wall_sfx_array)[0])
+                wall_sfx = pygame.mixer.Sound(_check_floor(mapX, mapY, walk_sfx_array, wall_sfx_array)[1])
         if event.type ==pygame.QUIT:
             running = False
     _update_runner(update_runner_array)
