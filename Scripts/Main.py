@@ -56,8 +56,6 @@ object_sfx = []
 final_invest_sfx = []
 for i in os.scandir("../SFX/temporary"):
     object_sfx.append(pygame.mixer.Sound(i))
-for i in os.scandir("../SFX/final_invests"):
-    final_invest_sfx.append(pygame.mixer.Sound(i))
 cursor = pygame.transform.scale(cursor, (150 * scale_x, 150 * scale_y))
 cx = cursor.get_width()/2
 cy = cursor.get_height()/2
@@ -116,15 +114,76 @@ floor_layout = [
 ]
 walk_sfx_array = []
 wall_sfx_array = []
+door_open_array = []
+door_locked_array = []
+investigation_arrays = [
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    []
+]
 for i in os.scandir("../SFX/walking_sfx"):
     walk_sfx_array.append(os.path.basename(i))
 for i in os.scandir("../SFX/walls_sfx"):
     wall_sfx_array.append(os.path.basename(i))
+for i in os.scandir("../SFX/Doors/open_sfx"):
+    door_open_array.append(os.path.basename(i))
+for i in os.scandir("../SFX/Doors/locked_sfx"):
+    door_locked_array.append(os.path.basename(i))
+for i in os.scandir("../SFX/final_invests"):
+    final_invest_sfx.append(os.path.basename(i))
+for i in os.scandir("../SFX/Investigation_SFX"):
+    sound = "../SFX/Investigation_SFX/" + os.path.basename(i) + "/"
+    match os.path.basename(i):
+        case "00_reception":
+            for a in os.scandir(i):
+                new_sound = sound + os.path.basename(a)
+                investigation_arrays[0].append(pygame.mixer.Sound(new_sound))
+        case "01_kitchen":
+            for a in os.scandir(i):
+                new_sound = sound + os.path.basename(a)
+                investigation_arrays[1].append(pygame.mixer.Sound(new_sound))
+        case "02_fountain":
+            for a in os.scandir(i):
+                new_sound = sound + os.path.basename(a)
+                investigation_arrays[2].append(pygame.mixer.Sound(new_sound))
+        case "03_staff_room":
+            for a in os.scandir(i):
+                new_sound = sound + os.path.basename(a)
+                investigation_arrays[3].append(pygame.mixer.Sound(new_sound))
+        case "04_comms_room":
+            for a in os.scandir(i):
+                new_sound = sound + os.path.basename(a)
+                investigation_arrays[4].append(pygame.mixer.Sound(new_sound))
+        case "05_operation_room":
+            for a in os.scandir(i):
+                new_sound = sound + os.path.basename(a)
+                investigation_arrays[5].append(pygame.mixer.Sound(new_sound))
+        case "06_nothingness_room":
+            for a in os.scandir(i):
+                new_sound = sound + os.path.basename(a)
+                investigation_arrays[6].append(pygame.mixer.Sound(new_sound))
+        case "07-08-09_room":
+            for a in os.scandir(i):
+                new_sound = sound + os.path.basename(a)
+                investigation_arrays[7].append(pygame.mixer.Sound(new_sound))
+        case "08_final_room":
+            for a in os.scandir(i):
+                new_sound = sound + os.path.basename(a)
+                investigation_arrays[8].append(pygame.mixer.Sound(new_sound))
 map_layout.reverse()
 door_layout.reverse()
 floor_layout.reverse()
 walk_sfx_array.sort()
 wall_sfx_array.sort()
+door_open_array.sort()
+door_locked_array.sort()
+final_invest_sfx.sort()
 for i in walk_sfx_array:
     sound = "../SFX/walking_sfx/" + i
     pos = walk_sfx_array.index(i)
@@ -135,6 +194,21 @@ for i in wall_sfx_array:
     pos = wall_sfx_array.index(i)
     wall_sfx_array.remove(i)
     wall_sfx_array.insert(pos, pygame.mixer.Sound(sound))
+for i in door_open_array:
+    sound = "../SFX/Doors/open_sfx/" + i
+    pos = door_open_array.index(i)
+    door_open_array.remove(i)
+    door_open_array.insert(pos, pygame.mixer.Sound(sound))
+for i in door_locked_array:
+    sound = "../SFX/Doors/locked_sfx/" + i
+    pos = door_locked_array.index(i)
+    door_locked_array.remove(i)
+    door_locked_array.insert(pos, pygame.mixer.Sound(sound))
+for i in final_invest_sfx:
+    sound = "../SFX/final_invests/" + i
+    pos = final_invest_sfx.index(i)
+    final_invest_sfx.remove(i)
+    final_invest_sfx.insert(pos, pygame.mixer.Sound(sound))
 
 class InvestigateArea():
     def __init__(self, xPos, yPos, not_investigated, investigated, num):
@@ -173,14 +247,44 @@ def _check_door(x, y):
         return True
     return False
 
-def _check_floor(x, y, walk_sfx_array, wall_sfx_array):
+def _check_sounds(x, y, walk_sfx_array, wall_sfx_array, door_open_array, door_locked_array):
     new_list = floor_layout[y]
-    wall_num_add = 0
+    wall_num_update = 0
+    door_lock_update = 0
+    door_update = 1
+    object_sfx_number = 0
+    match new_list[x]:
+        case 2:
+            object_sfx_number = 1
+        case 3:
+            object_sfx_number = 2
+            door_lock_update = 1
+        case 5:
+            object_sfx_number = 3
+        case 6:
+            object_sfx_number = 4
+            door_lock_update = 2
+        case 7:
+            door_lock_update = 3
+        case 8:
+            wall_num_update = 1
+        case 9:
+            object_sfx_number = 5
+            wall_num_update = 2
+        case 10:
+            object_sfx_number = 6
+            door_lock_update = 4
+        case 11:
+            object_sfx_number = 6
+        case 12:
+            object_sfx_number = 7
+        case 13:
+            object_sfx_number = 8
     if new_list[x] == 8:
-        wall_num_add = 1
+        wall_num_update = 1
     elif new_list[x] >= 9:
-        wall_num_add = 2
-    return walk_sfx_array[new_list[x]], wall_sfx_array[new_list[x] - wall_num_add]
+        wall_num_update = 2
+    return walk_sfx_array[new_list[x]], wall_sfx_array[new_list[x] - wall_num_update], door_open_array[new_list[x] - wall_num_update + door_update], door_locked_array[door_lock_update], object_sfx_number
 
 class RandomObject():
     def __init__(self, note_to_be_used, object_array, sound_array, which_invest, final_invest_sfx):
@@ -508,7 +612,7 @@ while running:
                     elif _check_pos(0, 0) > 19:
                         print(_check_pos(0, 0))
                     else:
-                        for i in range(5):
+                        for i in range(len(object_sfx)):
                             for i in location_areas:
                                 i.currently_investigating = True
                             objects = RandomObject(note_1, update_runner_array, object_sfx, _check_pos(0, 0), final_invest_sfx)
@@ -589,8 +693,12 @@ while running:
                                 else:
                                     wall_sfx.play()
                                 left_channel.set_volume(1,0)
-                walk_sfx = pygame.mixer.Sound(_check_floor(mapX, mapY, walk_sfx_array, wall_sfx_array)[0])
-                wall_sfx = pygame.mixer.Sound(_check_floor(mapX, mapY, walk_sfx_array, wall_sfx_array)[1])
+                le_sfx = _check_sounds(mapX, mapY, walk_sfx_array, wall_sfx_array, door_open_array, door_locked_array)
+                walk_sfx = pygame.mixer.Sound(le_sfx[0])
+                wall_sfx = pygame.mixer.Sound(le_sfx[1])
+                open_door_sfx = pygame.mixer.Sound(le_sfx[2])
+                locked_door_sfx = pygame.mixer.Sound(le_sfx[3])
+                object_sfx = investigation_arrays[le_sfx[4]]
         if event.type ==pygame.QUIT:
             running = False
     _update_runner(update_runner_array)
