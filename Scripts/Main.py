@@ -117,6 +117,8 @@ floor_layout = [
     [0, 26,26,3,3,3,5,5,0,0,2,1,1,1],
     [0]
 ]
+fell_down = False
+break_glass = False
 volume = 1
 walk_sfx_array = []
 wall_sfx_array = []
@@ -262,27 +264,60 @@ def _check_door(x, y):
         return True
     return False
 name = "nothing"
-def _positional_audio(object_pos_x, mapX, mapY, up, when_to_play, audio):
-    numy = 1
-    if up:
-        if mapY - mapX != 0:
-            numy = 1 / abs(mapY - mapX)
-    else:
-        if mapX - mapY != 0:
-            numy = 1 / abs(mapX - mapY)
-    if mapX - object_pos_x != 0:
-        numx = 1 / abs(mapX - object_pos_x)
-    else:
-        numx = 1
-    if not pygame.mixer.Channel(1).get_busy() and when_to_play:
-        pygame.mixer.Channel(1).play(audio)
-    elif not when_to_play:
-        pygame.mixer.Channel(1).fadeout(1600)
-    if numx > numy:
-        background_channel.set_volume(numx, numy)
-    else:
-        background_channel.set_volume(numy, numx)
+class _positional_audio():
+    def __init__(self):
+        print("cool")
+    def _update(self, pos_x, pos_y, mapX, mapY, audio):
+        change_right_ear = abs(pos_x - mapX)
+        change_left_ear = abs(pos_y - mapY)
+        equal = False
+        if pos_x - mapX > 0:
+            left = False
+        elif mapX - pos_x > 0:
+            left = True
+        else:
+            equal = True
+        match change_right_ear:
+            case 0:
+                right_ear = 1
+            case 1:
+                right_ear = 0.75
+            case 2:
+                right_ear = 0.5
+            case 3:
+                right_ear = 0.25
+            case _:
+                right_ear = 0
+        match change_left_ear:
+            case 0:
+                left_ear = 1
+            case 1:
+                left_ear = 0.75
+            case 2:
+                left_ear = 0.5
+            case 3:
+                left_ear = 0.25
+            case _:
+                left_ear = 0
+        if left_ear == 0 or right_ear == 0:
+            left_ear = 0
+            right_ear = 0
 
+        if not pygame.mixer.Channel(1).get_busy():
+            pygame.mixer.Channel(1).play(audio)
+        elif audio != pygame.mixer.Channel(1).get_sound():
+            pygame.mixer.Channel(1).fadeout(1600)
+        if not equal:
+            if left_ear > right_ear and not left or left_ear < right_ear and left:
+                background_channel.set_volume(right_ear, left_ear)
+            else:
+                background_channel.set_volume(left_ear, right_ear)
+        else:
+            if right_ear < left_ear:
+                background_channel.set_volume(right_ear, right_ear)
+            else:
+                background_channel.set_volume(left_ear, left_ear)
+pos_audio = _positional_audio()
 def _check_sounds(x, y, future_pos, walk_sfx_array, wall_sfx_array, door_open_array, door_locked_array):
     new_list = floor_layout[y]
     door_list = door_layout[y]
@@ -311,16 +346,7 @@ def _check_sounds(x, y, future_pos, walk_sfx_array, wall_sfx_array, door_open_ar
             name = "staff_area"
         case 6:
             name = "comms_log"
-        case 7:
-            if not fell_down:
-                print("play_fall")
-                fell_down = True
-            else:
-                print("play_rise")
         case 8:
-            if not broke_glass:
-                print("broke_glass")
-                broke_glass = True
             wall_num_update = 1
         case 9:
             object_sfx_number = 5
@@ -771,7 +797,15 @@ while running:
                                 left_channel.set_volume(1,0)
                 before_volume = volume
                 le_sfx = _check_sounds(mapX, mapY, num_to_check, walk_sfx_array, wall_sfx_array, door_open_array, door_locked_array)
-                walk_sfx = pygame.mixer.Sound(le_sfx[0])
+                new_list = floor_layout[mapY]
+                if new_list[mapX] == 7 and not fell_down:
+                    walk_sfx = pygame.mixer.Sound("../SFX/falling_down_stairs.mp3")
+                    fell_down = True
+                elif new_list[mapX] == 8 and not break_glass:
+                    walk_sfx = pygame.mixer.Sound("../SFX/break_glass.mp3")
+                    break_glass = True
+                else:
+                    walk_sfx = pygame.mixer.Sound(le_sfx[0])
                 wall_sfx = pygame.mixer.Sound(le_sfx[1])
                 open_door_sfx = pygame.mixer.Sound(le_sfx[2])
                 locked_door_sfx = pygame.mixer.Sound(le_sfx[3])
@@ -790,16 +824,16 @@ while running:
             running = False
     match name:
         case "main":
-            _positional_audio(9, mapX, mapY, True, True, elevator_flicker)
+            pos_audio._update(8, 7, mapX, mapY,elevator_flicker)
         case "garden":
-            _positional_audio(3, mapX, mapY, False, True, fountain)
+            pos_audio._update(3,3, mapX, mapY, fountain)
         case "staff_area":
-            _positional_audio(6, mapX, mapY, False, True, dying_man)
+            pos_audio._update(6,1, mapX, mapY, dying_man)
         case "comms_log":
             if not comms_log_heard:
-                _positional_audio(6, mapX, mapY, True, True, comms_log)
+                pos_audio._update(6, 7, mapX, mapY, comms_log)
         case "nothing":
-            _positional_audio(10000, 0, 0, False, False, fountain)
+            pos_audio._update(10000,10000, 0, 0, pygame.mixer.Sound("../SFX/break_glass.mp3"))
     _update_runner(update_runner_array)
     pygame.display.flip()
     clock.tick(60)
