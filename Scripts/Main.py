@@ -23,7 +23,11 @@ scale_y = screen.get_height() / 720
 map = pygame.image.load("../Sprites/map.png").convert_alpha()
 map = pygame.transform.scale(map, (64 * 20 * scale_x, 36 * 20 * scale_y))
 
-comms_log_heard = False
+comms_log_not_heard = True
+man_can_be_murdered = False
+man_not_murdered = True
+picture = pygame.mixer.Sound("../SFX/picture_take.mp3")
+man_getting_killed = pygame.mixer.Sound("../SFX/guy_is_murdered.mp3")
 elevator_flicker = pygame.mixer.Sound("../SFX/Background SFX/elevator_flickering.mp3")
 dying_man = pygame.mixer.Sound("../SFX/Background SFX/staff_area_dying_man.mp3")
 comms_log = pygame.mixer.Sound("../SFX/Background SFX/comms_voice_message.mp3")
@@ -67,6 +71,7 @@ font = pygame.font.Font(None, 100)
 running = True
 
 END_MUSIC = pygame.USEREVENT + 1
+PICTURE_TAKEN = pygame.USEREVENT + 2
 mask = pygame.mask.from_surface(map, 0)
 mask_2 = pygame.mask.from_surface(cursor, 0)
 menu_mask_array = [start_button, quit_button, title]
@@ -267,7 +272,7 @@ name = "nothing"
 class _positional_audio():
     def __init__(self):
         print("cool")
-    def _update(self, pos_x, pos_y, mapX, mapY, audio):
+    def _update(self, pos_x, pos_y, mapX, mapY, audio, can_be_played):
         change_right_ear = abs(pos_x - mapX)
         change_left_ear = abs(pos_y - mapY)
         equal = False
@@ -303,7 +308,7 @@ class _positional_audio():
             left_ear = 0
             right_ear = 0
 
-        if not pygame.mixer.Channel(1).get_busy():
+        if not pygame.mixer.Channel(1).get_busy() and can_be_played:
             pygame.mixer.Channel(1).play(audio)
         elif audio != pygame.mixer.Channel(1).get_sound():
             pygame.mixer.Channel(1).fadeout(1600)
@@ -338,7 +343,10 @@ def _check_sounds(x, y, future_pos, walk_sfx_array, wall_sfx_array, door_open_ar
     match new_list[x]:
         case 0:
             name = "main"
+        case 1:
+            name = "man_being_killed"
         case 2:
+            name = "man_being_killed"
             object_sfx_number = 1
         case 3:
             name = "garden"
@@ -688,11 +696,14 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_e:
                 if _check_pos(0, 0) > 10 and finished_investigating:
+                    pygame.mixer.Channel(2).play(picture)
                     mask_being_rendered = map
                     note_position_offset = (0, 0)
                     for i in location_areas:
                         i.currently_investigating = False
                         if i.which_am_i == _check_pos(0, 0):
+                            if i.which_am_i == 12:
+                                man_can_be_murdered = True
                             _finished_investigating(_check_pos(0, 0), map_layout, i, door_layout)
                             i.investigated = True
                     mask = pygame.mask.from_surface(mask_being_rendered, 0)
@@ -824,16 +835,22 @@ while running:
             running = False
     match name:
         case "main":
-            pos_audio._update(8, 7, mapX, mapY,elevator_flicker)
+            pos_audio._update(8, 7, mapX, mapY,elevator_flicker, True)
+        case "man_being_killed":
+            if man_can_be_murdered:
+                if man_not_murdered:
+                    pos_audio._update(10, 2, mapX, mapY, man_getting_killed, man_not_murdered)
+                    man_not_murdered = False
         case "garden":
-            pos_audio._update(3,3, mapX, mapY, fountain)
+            pos_audio._update(3,3, mapX, mapY, fountain, True)
         case "staff_area":
-            pos_audio._update(6,1, mapX, mapY, dying_man)
+            pos_audio._update(6,1, mapX, mapY, dying_man, True)
         case "comms_log":
-            if not comms_log_heard:
-                pos_audio._update(6, 7, mapX, mapY, comms_log)
+            if comms_log_not_heard:
+                pos_audio._update(6, 7, mapX, mapY, comms_log, comms_log_not_heard)
+                comms_log_not_heard = False
         case "nothing":
-            pos_audio._update(10000,10000, 0, 0, pygame.mixer.Sound("../SFX/break_glass.mp3"))
+            pos_audio._update(10000,10000, 0, 0, pygame.mixer.Sound("../SFX/break_glass.mp3"), True)
     _update_runner(update_runner_array)
     pygame.display.flip()
     clock.tick(60)
