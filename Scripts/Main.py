@@ -297,7 +297,6 @@ def _check_door(x, y, num_to_check, current_pos):
     new_list = door_layout[y]
     current_pos_list = door_layout[current_pos[1]]
     door_to_check = current_pos_list[current_pos[0]]
-    print(new_list[x], num_to_check, door_to_check)
     match new_list[x]:
         case 1:
             if door_to_check == 0:
@@ -458,7 +457,6 @@ def _check_sounds(x, y, future_pos, door_future, walk_sfx_array, wall_sfx_array,
     if door_num == 100:
         future_door_list = door_layout[door_future[1]]
         door_num = int(future_door_list[door_future[0]] / 10)
-        print(door_num)
         if door_num == 100:
             door_num = 0
     match door_num:
@@ -682,7 +680,6 @@ def _tutorial(mask_array, pos_array, mouse_mask, proper_pos, is_clicked):
             return mask_array.index(i)
 
 def _jumpscare(note_pos_offset, jumpscare_time, menu):
-    print(pygame.mixer.music.get_pos())
     num = pygame.mixer.music.get_pos()
     delay = int(num/100)
     if delay < 50:
@@ -765,7 +762,6 @@ while running:
     proper_pos = (mx - cx, my - cy)
     mouse_rect = pygame.Rect(mx, my, 50, 50)
     while menu:
-        print("HHHHEEEYYYY")
         if not pygame.mixer.music.get_busy():
             pygame.mixer.music.load("../SFX/Music/menu_theme_begin.mp3")
             pygame.mixer.music.play()
@@ -1078,7 +1074,6 @@ while running:
 
     while jumpscare_time:
         _jumpscare(note_position_offset, jumpscare_time, menu)
-        print("jumpscare")
         if pygame.mixer.music.get_pos() > 33000:
             tutorial = False
             menu_mask_array = [start_button, quit_button, title, text]
