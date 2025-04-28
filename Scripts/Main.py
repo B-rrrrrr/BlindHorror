@@ -449,6 +449,7 @@ def _check_sounds(x, y, future_pos, door_future, walk_sfx_array, wall_sfx_array,
         case 12:
             object_sfx_number = 7
         case 13:
+            name = "final"
             object_sfx_number = 8
     if new_list[x] == 8:
         wall_num_update = 1
