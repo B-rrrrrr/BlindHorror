@@ -903,7 +903,6 @@ while running:
                                 objects = RandomObject(note_1, update_runner_array, object_sfx, 17, final_invest_sfx)
                                 update_runner_array.append(objects)
                     elif _check_pos(0, 0) == 19 and not currently_investigation:
-                        pygame.mixer.Channel(6).play(monster_stereo, 1000)
                         for i in range(len(object_sfx)):
                             for i in location_areas:
                                 if i.which_am_i == _check_pos(0,0) and i.investigated:
@@ -1066,6 +1065,11 @@ while running:
         case "break_in":
             if break_in_not_happen:
                 break_in_not_happen = False
+        case "final":
+            if currently_investigation:
+                pos_audio._update(mapX, mapY, mapX, mapY, monster_mono, True)
+            else:
+                pos_audio._update(mapX, mapY, mapX, mapY, monster_stereo, True)
         case "nothing":
             pos_audio._update(10000,10000, 0, 0, silence, True)
             pos_audio_2._update(10000, 10000, 0, 0, silence, True)
@@ -1080,7 +1084,8 @@ while running:
             menu_pos_array = [(0 * scale_x, 200 * scale_y), (700 * scale_x, 500 * scale_y), (500 * scale_x, 50 * scale_y), (width / 2, height / 2)]
             menu = True
             jumpscare_time = False
-
+        else:
+            pygame.mixer.stop()
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
