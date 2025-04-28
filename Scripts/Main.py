@@ -68,8 +68,6 @@ start_button = pygame.transform.scale(start_button, (200 * 2 * scale_x, 100 * 2 
 quit_button = pygame.transform.scale(quit_button, (200 * 2 * scale_x, 100 * 2 * scale_y))
 title = pygame.image.load("../Sprites/title.png").convert_alpha()
 title = pygame.transform.scale(title, (200 * 3 * scale_x, 100 * 3 * scale_y))
-note_1 = pygame.image.load("../Sprites/note.png").convert_alpha()
-note_1 = pygame.transform.scale(note_1, (205 * 2 * scale_x, 246 * 2 * scale_y))
 cursor = pygame.image.load("../Sprites/cursor.png").convert_alpha()
 black = pygame.image.load("../Sprites/black.png").convert_alpha()
 location_to_hit = pygame.image.load("../Sprites/location_to_hit.png").convert_alpha()
@@ -88,6 +86,7 @@ open_door_sfx = pygame.mixer.Sound("../SFX/Doors/open_sfx/00_main_area_door_open
 print("Hello, " +socket.gethostname() + ". Thank you for your interest.")
 object_sfx = []
 final_invest_sfx = []
+final_invest_sprites = []
 cursor = pygame.transform.scale(cursor, (150 * scale_x, 150 * scale_y))
 cx = cursor.get_width()/2
 cy = cursor.get_height()/2
@@ -170,6 +169,8 @@ investigation_arrays = [
     []
 ]
 
+for i in os.scandir("../Sprites/Investigation"):
+    final_invest_sprites.append(os.path.basename(i))
 for i in os.scandir("../SFX/walking_sfx"):
     walk_sfx_array.append(os.path.basename(i))
 for i in os.scandir("../SFX/walls_sfx"):
@@ -228,12 +229,19 @@ for i in os.scandir("../SFX/Investigation_SFX"):
 map_layout.reverse()
 door_layout.reverse()
 floor_layout.reverse()
+final_invest_sprites.sort()
 walk_sfx_array.sort()
 wall_sfx_array.sort()
 door_open_array.sort()
 door_locked_array.sort()
 final_invest_sfx.sort()
 ambience_array.sort()
+for i in final_invest_sprites:
+    invest_sprite = pygame.image.load("../Sprites/Investigation/" + i).convert_alpha()
+    invest_sprite = pygame.transform.scale(invest_sprite, (invest_sprite.get_width() * 2 * scale_x, invest_sprite.get_height() * 2 * scale_y))
+    pos = final_invest_sprites.index(i)
+    final_invest_sprites.remove(i)
+    final_invest_sprites.insert(pos, invest_sprite)
 for i in walk_sfx_array:
     sound = "../SFX/walking_sfx/" + i
     pos = walk_sfx_array.index(i)
@@ -478,7 +486,7 @@ class RandomObject():
             self.sound = sound_array[len(object_array) - 1]
         self.count = 0
         self.can_col = True
-        self.note = note_to_be_used
+        self.note = note_to_be_used[which_invest - 11]
         self.colliding_with_object = True
         while self.colliding_with_object:
             self.this_obj = pygame.Rect(random.uniform(100 * scale_x,1100 * scale_x), random.uniform(50 * scale_y,600 * scale_y), random.uniform(175, 300), random.uniform(175, 300))
@@ -776,7 +784,7 @@ while running:
                 if not tutorial:
                     tutorial = True
                     pygame.mixer.music.fadeout(800)
-                    menu_mask_array = [note_1, text]
+                    menu_mask_array = [jump_2, text]
                     menu_pos_array = [(0, 0), (50, 50)]
                     pygame.mixer.music.queue("../SFX/Music/intro_ambience.mp3")
                 else:
@@ -818,6 +826,7 @@ while running:
         if mask_being_rendered == map and lost_map:
             mask_being_rendered = black
             mask = pygame.mask.from_surface(mask_being_rendered, 0)
+        print(mask_being_rendered, note_position_offset)
         screen.blit(overlap_mask.to_surface(None, mask_being_rendered, None), note_position_offset)
 
     if not lost_map:
@@ -897,7 +906,7 @@ while running:
                                     i.currently_investigating = True
                                     if i.which_am_i == _check_pos(0, 0) and i.investigated:
                                         currently_investigation = True
-                                objects = RandomObject(note_1, update_runner_array, object_sfx, 17, final_invest_sfx)
+                                objects = RandomObject(final_invest_sprites, update_runner_array, object_sfx, 17, final_invest_sfx)
                                 update_runner_array.append(objects)
                     elif _check_pos(0, 0) == 19 and not currently_investigation:
                         for i in range(len(object_sfx)):
@@ -906,7 +915,7 @@ while running:
                                     currently_investigation = True
                                 i.currently_investigating = True
                             if not currently_investigation:
-                                objects = RandomObject(note_1, update_runner_array, object_sfx, _check_pos(0, 0), final_invest_sfx)
+                                objects = RandomObject(final_invest_sprites, update_runner_array, object_sfx, _check_pos(0, 0), final_invest_sfx)
                                 update_runner_array.append(objects)
                     elif _check_pos(0, 0) > 19 and not currently_investigation:
                         for i in range(len(object_sfx)):
@@ -914,7 +923,7 @@ while running:
                                 i.currently_investigating = True
                                 if i.which_am_i == _check_pos(0, 0) and i.investigated:
                                     currently_investigation = True
-                            objects = RandomObject(note_1, update_runner_array, object_sfx, 18, final_invest_sfx)
+                            objects = RandomObject(final_invest_sprites, update_runner_array, object_sfx, 18, final_invest_sfx)
                             update_runner_array.append(objects)
                     else:
                         for i in range(len(object_sfx)):
@@ -923,7 +932,7 @@ while running:
                                     currently_investigation = True
                                 i.currently_investigating = True
                             if not currently_investigation:
-                                objects = RandomObject(note_1, update_runner_array, object_sfx, _check_pos(0, 0), final_invest_sfx)
+                                objects = RandomObject(final_invest_sprites, update_runner_array, object_sfx, _check_pos(0, 0), final_invest_sfx)
                                 update_runner_array.append(objects)
             if currently_investigation:
                 for i in location_areas:
