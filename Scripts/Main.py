@@ -8,6 +8,7 @@ from pygame import Vector2
 pygame.init()
 pygame.mixer.init()
 
+volume_level = 1
 left_channel = pygame.mixer.Channel(0)
 background_channel = pygame.mixer.Channel(1)
 break_in_not_happen = True
@@ -24,6 +25,8 @@ screen = pygame.display.set_mode((width, height), pygame.FULLSCREEN)
 scale_x = screen.get_width() / 1280
 scale_y = screen.get_height() / 720
 
+intro_page = pygame.image.load("../Sprites/intropaper.png").convert_alpha()
+intro_page = pygame.transform.scale(intro_page, (intro_page.get_width() * scale_x, intro_page.get_height() * scale_y))
 map = pygame.image.load("../Sprites/map.png").convert_alpha()
 map = pygame.transform.scale(map, (64 * 20 * scale_x, 36 * 20 * scale_y))
 
@@ -83,7 +86,6 @@ wall_sfx = pygame.mixer.Sound("../SFX/walls_sfx/00_main_area_wall.mp3")
 walk_sfx = pygame.mixer.Sound("../SFX/walking_sfx/00_walking_normal.mp3")
 locked_door_sfx = pygame.mixer.Sound("../SFX/Doors/locked_sfx/00_main_area_door_locked.mp3")
 open_door_sfx = pygame.mixer.Sound("../SFX/Doors/open_sfx/00_main_area_door_open.mp3")
-print("Hello, " +socket.gethostname() + ". Thank you for your interest.")
 object_sfx = []
 final_invest_sfx = []
 final_invest_sprites = []
@@ -91,7 +93,7 @@ cursor = pygame.transform.scale(cursor, (150 * scale_x, 150 * scale_y))
 cx = cursor.get_width()/2
 cy = cursor.get_height()/2
 font = pygame.font.Font(None, 100)
-text = font.render("IM CUMMING FUCK YEAH BABYYYY", True, (255, 255, 255))
+text = font.render(socket.gethostname(), True, (0,0,0), (205,205,205)).convert_alpha()
 text_rect = text.get_rect()
 running = True
 
@@ -749,9 +751,9 @@ class Slider:
         screen.blit(overlapping_mask_slider_knob.to_surface(None, self.slider_knob, None), self.slider_knob_pos)
         
     def get_value(self):
+        print(self.slider_knob_pos[0] / self.pos[0] )
         val_range = self.slider_right_pos - self.slider_left_pos - 1
         button_val = self.button_rect.centerx - self.slider_left_pos
-
         return (button_val / val_range) * (self.max - self.min) + self.min
 click = False
 pygame.time.set_timer(pygame.USEREVENT, 1000)
@@ -763,7 +765,7 @@ timer_break_in = random.randint(5, 10)
 timer_man_killed = 1
 timer_jumpscare = 2
 pygame.mixer.music.set_endevent(END_MUSIC)
-slider = Slider((300 * scale_x,600 * scale_y), (200 * scale_x,100 * scale_y), 0.5, 0, 100, slider_body, slider_knob, speaker_symbol)
+slider = Slider((285 * scale_x,600 * scale_y), (150 * scale_x,200 * scale_y), 0.5, 0, 100, slider_body, slider_knob, speaker_symbol)
 while running:
     screen.fill((0,0,0))
     mx, my = pygame.mouse.get_pos()
@@ -784,8 +786,8 @@ while running:
                 if not tutorial:
                     tutorial = True
                     pygame.mixer.music.fadeout(800)
-                    menu_mask_array = [jump_2, text]
-                    menu_pos_array = [(0, 0), (50, 50)]
+                    menu_mask_array = [intro_page, text]
+                    menu_pos_array = [(intro_page.get_width()/2, 0), (intro_page.get_width()-20*scale_x, 17*scale_y)]
                     pygame.mixer.music.queue("../SFX/Music/intro_ambience.mp3")
                 else:
                     menu = False
@@ -800,6 +802,8 @@ while running:
             slider.render(screen, mask_2, proper_pos)
             if slider.container_rect.collidepoint((mx,my)) and mouse[0]:
                 slider.move_slider((mx,my))
+            volume_level = slider.get_value()
+            print(slider.get_value())
 
         click = False
         for event in pygame.event.get():
