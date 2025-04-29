@@ -411,14 +411,14 @@ class _positional_audio():
             self.fade_in = True
         if not equal:
             if left_ear > right_ear and not left or left_ear < right_ear and left:
-                self.channel.set_volume(right_ear, left_ear)
+                self.channel.set_volume(right_ear * volume_level, left_ear * volume_level)
             else:
-                self.channel.set_volume(left_ear, right_ear)
+                self.channel.set_volume(left_ear * volume_level, right_ear * volume_level)
         else:
             if right_ear < left_ear:
-                self.channel.set_volume(right_ear, right_ear)
+                self.channel.set_volume(right_ear * volume_level, right_ear * volume_level)
             else:
-                self.channel.set_volume(left_ear, left_ear)
+                self.channel.set_volume(left_ear * volume_level, left_ear * volume_level)
 pos_audio = _positional_audio(background_channel)
 pos_audio_2 = _positional_audio(break_in_channel)
 def _check_sounds(x, y, future_pos, door_future, walk_sfx_array, wall_sfx_array, door_open_array, door_locked_array):
@@ -506,10 +506,12 @@ class RandomObject():
         if self.can_col:
             if col:
                 self.sound.play()
+                self.sound.set_volume(volume_level)
                 if is_note == 0:
                     self.count += 1
                     if self.count == 2:
                         self.sound.play()
+                        self.sound.set_volume(volume_level)
                         update_runner_array.clear()
                         update_runner_array.append(self)
                 self.can_col = False
@@ -631,14 +633,17 @@ def _wall_checker(c_layer, future_layer, door_sfx):
             case 20:
                 if future_layer == 10 or future_layer == 27:
                     door_sfx.play()
+                    door_sfx.set_volume(volume_level)
                     return True
             case 21:
                 if future_layer == 10 or future_layer == 27:
                     door_sfx.play()
+                    door_sfx.set_volume(volume_level)
                     return True
             case 22:
                 if future_layer == 10 or future_layer == 27:
                     door_sfx.play()
+                    door_sfx.set_volume(volume_level)
                     return True
             case 25:
                 if future_layer == 1:
@@ -646,20 +651,24 @@ def _wall_checker(c_layer, future_layer, door_sfx):
             case 27:
                 if future_layer == 10 or future_layer >= 19 and future_layer <= 22:
                     door_sfx.play()
+                    door_sfx.set_volume(volume_level)
                     return True
     elif future_layer >= 20:
         match future_layer:
             case 20:
                 if c_layer == 10 or future_layer == 27:
                     door_sfx.play()
+                    door_sfx.set_volume(volume_level)
                     return True
             case 21:
                 if c_layer == 10 or future_layer == 27:
                     door_sfx.play()
+                    door_sfx.set_volume(volume_level)
                     return True
             case 22:
                 if c_layer == 10 or future_layer == 27:
                     door_sfx.play()
+                    door_sfx.set_volume(volume_level)
                     return True
             case 25:
                 if c_layer == 1:
@@ -751,10 +760,12 @@ class Slider:
         screen.blit(overlapping_mask_slider_knob.to_surface(None, self.slider_knob, None), self.slider_knob_pos)
         
     def get_value(self):
-        print(self.slider_knob_pos[0] / self.pos[0] )
-        val_range = self.slider_right_pos - self.slider_left_pos - 1
-        button_val = self.button_rect.centerx - self.slider_left_pos
-        return (button_val / val_range) * (self.max - self.min) + self.min
+        value = self.slider_knob_pos[0] * scale_x / self.button_rect.centerx - 0.9
+        if value < 0.1:
+            value = 0
+        elif value > 0.85:
+            value = 0.9
+        return value
 click = False
 pygame.time.set_timer(pygame.USEREVENT, 1000)
 pygame.time.set_timer(pygame.USEREVENT + 6, 1000)
@@ -803,7 +814,8 @@ while running:
             if slider.container_rect.collidepoint((mx,my)) and mouse[0]:
                 slider.move_slider((mx,my))
             volume_level = slider.get_value()
-            print(slider.get_value())
+            print(volume_level)
+            pygame.mixer.music.set_volume(volume_level)
 
         click = False
         for event in pygame.event.get():
@@ -830,7 +842,6 @@ while running:
         if mask_being_rendered == map and lost_map:
             mask_being_rendered = black
             mask = pygame.mask.from_surface(mask_being_rendered, 0)
-        print(mask_being_rendered, note_position_offset)
         screen.blit(overlap_mask.to_surface(None, mask_being_rendered, None), note_position_offset)
 
     if not lost_map:
@@ -839,6 +850,7 @@ while running:
 
     if picture_taken and not pygame.mixer.Channel(2).get_busy():
         pygame.mixer.Channel(3).play(map_rustling)
+        pygame.mixer.Channel(3).set_volume(volume_level, volume_level)
         mask_being_rendered = map
         note_position_offset = (0, 0)
         for i in location_areas:
@@ -863,15 +875,15 @@ while running:
         if event.type == pygame.USEREVENT:
             timer -= 1
             if timer < 0:
-                timer = random.randint(5, 10)
-                #pygame.mixer.Channel(7).play(random.choice(scary_sfx_array))
-                #pygame.mixer.Channel(7).set_volume(random.uniform(0, 1), random.uniform(0, 1))
+                timer = random.randint(20, 40)
+                pygame.mixer.Channel(7).play(random.choice(scary_sfx_array))
+                pygame.mixer.Channel(7).set_volume(random.uniform(0, 1) * volume_level, random.uniform(0, 1) * volume_level)
         elif (event.type == pygame.USEREVENT + 4 and not break_in_not_happen):
             timer_break_in -= 1
             if timer_break_in < 0:
                 if not door_broke:
                     pygame.mixer.Channel(5).play(door_broken)
-                    pygame.mixer.Channel(5).set_volume(0, 1)
+                    pygame.mixer.Channel(5).set_volume(0, 1 * volume_level)
                     door_broke = True
         elif event.type == pygame.USEREVENT + 5 and man_can_be_murdered:
             timer_man_killed -= 1
@@ -889,11 +901,13 @@ while running:
                 pygame.mixer.music.unload()
                 pygame.mixer.music.load("../SFX/extra scary sfx/final_jumpscare.mp3")
                 pygame.mixer.music.play()
+                pygame.mixer.music.set_volume(volume_level)
             if event.key == pygame.K_e:
                 if _check_pos(0, 0) > 10 and finished_investigating:
                     picture_taken = True
                     currently_investigation = False
                     pygame.mixer.Channel(2).play(picture)
+                    pygame.mixer.Channel(2).set_volume(1*volume_level,1* volume_level)
                 elif _check_pos(0, 0) > 10:
                     if _check_pos(0, 0) == 17:
                         mapX = 13
@@ -955,16 +969,18 @@ while running:
                                 mapY += 1
                                 if not pygame.mixer.Channel(0).get_busy():
                                     walk_sfx.play()
+                                    walk_sfx.set_volume(volume_level)
                             elif num_to_check == current_layer + 1 and not current_layer >= 11 or num_to_check == current_layer - 1 and not current_layer >= 11:
                                 current_layer = _door(num_to_check)
                                 mapY += 1
                                 open_door_sfx.play()
+                                open_door_sfx.set_volume(volume_level)
                             else:
                                 if _check_door(mapX, mapY + 1, num_to_check, (mapX, mapY-1)):
                                     locked_door = True
                                 else:
                                     wall_sfx.play()
-                                left_channel.set_volume(1, 1)
+                                left_channel.set_volume(1 * volume_level, 1 * volume_level)
                     case pygame.K_s:
                         if not pygame.mixer.Channel(0).get_busy():
                             num_to_check = _check_pos(0, -1)
@@ -975,16 +991,18 @@ while running:
                                 mapY -= 1
                                 if not pygame.mixer.Channel(0).get_busy():
                                     walk_sfx.play()
+                                    walk_sfx.set_volume(volume_level)
                             elif num_to_check == current_layer + 1 and not current_layer >= 11 or num_to_check == current_layer - 1 and not current_layer >= 11:
                                 current_layer = _door(num_to_check)
                                 mapY -= 1
                                 open_door_sfx.play()
+                                open_door_sfx.set_volume(volume_level)
                             else:
                                 if _check_door(mapX, mapY - 1, num_to_check, (mapX, mapY+1)):
                                     locked_door = True
                                 else:
                                     wall_sfx.play()
-                                left_channel.set_volume(0.5,0.5)
+                                left_channel.set_volume(0.5 * volume_level,0.5 * volume_level)
                     case pygame.K_d:
                         if not pygame.mixer.Channel(0).get_busy():
                             num_to_check = _check_pos(1, 0)
@@ -995,16 +1013,18 @@ while running:
                                 mapX += 1
                                 if not pygame.mixer.Channel(0).get_busy():
                                     walk_sfx.play()
+                                    walk_sfx.set_volume(volume_level)
                             elif num_to_check == current_layer + 1 and not current_layer >= 11 or num_to_check == current_layer - 1 and not current_layer >= 11:
                                 current_layer = _door(num_to_check)
                                 mapX += 1
                                 open_door_sfx.play()
+                                open_door_sfx.set_volume(volume_level)
                             else:
                                 if _check_door(mapX + 1, mapY, num_to_check, (mapX-1, mapY)):
                                     locked_door = True
                                 else:
                                     wall_sfx.play()
-                                left_channel.set_volume(0,1)
+                                left_channel.set_volume(0,1 * volume_level)
                     case pygame.K_a:
                         if not pygame.mixer.Channel(0).get_busy():
                             num_to_check = _check_pos(-1, 0)
@@ -1015,16 +1035,18 @@ while running:
                                 mapX -= 1
                                 if not pygame.mixer.Channel(0).get_busy():
                                     walk_sfx.play()
+                                    walk_sfx.set_volume(volume_level)
                             elif num_to_check == current_layer + 1 and not current_layer >= 11 or num_to_check == current_layer - 1 and not current_layer >= 11:
                                 current_layer = _door(num_to_check)
                                 mapX -= 1
                                 open_door_sfx.play()
+                                open_door_sfx.set_volume(volume_level)
                             else:
                                 if _check_door(mapX - 1, mapY, num_to_check, (mapX+1, mapY)):
                                     locked_door = True
                                 else:
                                     wall_sfx.play()
-                                left_channel.set_volume(1,0)
+                                left_channel.set_volume(1*volume_level,0)
                 before_volume = volume
                 le_sfx = _check_sounds(mapX, mapY, num_to_check, future_position, walk_sfx_array, wall_sfx_array, door_open_array, door_locked_array)
                 new_list = floor_layout[mapY]
@@ -1042,11 +1064,12 @@ while running:
                 locked_door_sfx = pygame.mixer.Sound(le_sfx[3])
                 if locked_door:
                     locked_door_sfx.play()
+                    locked_door_sfx.set_volume(volume_level)
                     locked_door = False
                 object_sfx = investigation_arrays[le_sfx[4]]
                 volume = le_sfx[5] + 1
                 name = le_sfx[6]
-                pygame.mixer.music.set_volume(volume)
+                pygame.mixer.music.set_volume(volume * volume_level)
                 if before_volume != volume:
                     pygame.mixer.music.fadeout(1600)
                     pygame.mixer.music.queue(ambience_array[le_sfx[5]])
