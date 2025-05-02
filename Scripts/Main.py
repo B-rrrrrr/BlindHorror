@@ -59,6 +59,7 @@ lost_map = False
 comms_log_not_heard = True
 man_can_be_murdered = False
 locked_door = False
+open_door = False
 man_not_murdered = True
 volume = 1
 volume_level = 1
@@ -94,10 +95,11 @@ running = True
 currently_investigation = False
 END_MUSIC = pygame.USEREVENT + 1
 PICTURE_TAKEN = pygame.USEREVENT + 2
-menu_mask_array = [start_button, quit_button, title, text]
+menu_mask_array = [start_button, quit_button, title]
 menu_pos_array = [(0 * scale_x, 200 * scale_y), (700 * scale_x, 500 * scale_y), (500 * scale_x, 50 * scale_y), (width/2, height / 2)]
 note_position_offset = Vector2(0, 0)
 finished_investigating = False
+currently_investigating = False
 
 update_runner_array = []
 
@@ -106,15 +108,15 @@ map = pygame.transform.scale(map, (64 * 20 * scale_x, 36 * 20 * scale_y))
 mask_being_rendered = map
 mask = pygame.mask.from_surface(map, 0)
 mask_2 = pygame.mask.from_surface(cursor, 0)
-mapX = 8
-mapY = 1
-current_layer = 0
+mapX = 10
+mapY = 5
+current_layer = 9
 future_position = [0, 0]
 map_layout = [
     [0, 16,26,26,26,26,26,26,26,26,26,26,26,26],
     [0, 4,4,26,26,26,26,26,26,26,26,26,26,26],
-    [0, 4,4,7,5,5,15,6,2,2,20,21,22,19],
-    [0, 4,4,7,5,5,5,5,0,0,10,27,27,27],
+    [0, 4,4,30,5,5,15,6,2,2,20,21,22,19],
+    [0, 4,4,30,5,5,5,5,0,0,10,27,27,27],
     [0, 26,26,3,3,3,17,8,0,0,9,9,9,18],
     [0, 26,26,13,3,3,0,0,0,0,0,0,0,0],
     [0, 26,26,13,3,3,0,0,0,0,12,25,25,1],
@@ -124,8 +126,8 @@ map_layout = [
 ]
 door_layout = [
     [0, 0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0, 0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0, 0,0,0,0,1,1,0,0,0,0,0,0,0,0],
+    [0, 0,0,0,1,1,0,0,0,0,0,0,0,0],
+    [0, 0,0,0,1,1,0,0,0,0,0,0,0,0,0],
     [0, 0,0,70,70,0,0,60,0,0,100,100,100,110,0],
     [0, 0,0,70,70,1000,30,1000,1000,1000,1000,100,100,110,0],
     [0, 0,0,0,0,30,30,80,0,0,90,0,0,0,0],
@@ -239,7 +241,7 @@ ambience_array.sort()
 
 for i in final_invest_sprites:
     invest_sprite = pygame.image.load("../Sprites/Investigation/" + i).convert_alpha()
-    invest_sprite = pygame.transform.scale(invest_sprite, (invest_sprite.get_width() * 2 * scale_x, invest_sprite.get_height() * 2 * scale_y))
+    #invest_sprite = pygame.transform.scale(invest_sprite, (invest_sprite.get_width() * 2 * scale_x, invest_sprite.get_height() * 2 * scale_y))
     pos = final_invest_sprites.index(i)
     final_invest_sprites.remove(i)
     final_invest_sprites.insert(pos, invest_sprite)
@@ -514,9 +516,12 @@ def _finished_investigating(current_num, map_layout, this_thing, door_layout):
 
 for y in map_layout:
     for i, x in enumerate(y):
-        if x > 10 and x < 20:
+        if x > 10 and x < 20 or x == 30:
             obj = InvestigateArea((-8 + (i * 5)) * 20 * scale_x - loc_x, (38 - (map_layout.index(y) * 5)) * 20 * scale_y - loc_y, location_to_hit, location_hit, x)
             location_areas.append(obj)
+    for i, x in enumerate(y):
+        if y[i] == 30:
+            y[i] = 7
 def _wall_checker(c_layer, future_layer, door_sfx):
     if c_layer >= 20:
         match c_layer:
@@ -568,7 +573,6 @@ def _wall_checker(c_layer, future_layer, door_sfx):
                     return True
     return False
 def _door(new_layer_num):
-    #check which area
     return  new_layer_num
 def _check_pos(change_x, change_y):
     if (mapY + change_y) > 0 and (mapY + change_y) < 10 and (mapX + change_x) > 0 and (mapX+change_x) < 14:
@@ -582,25 +586,25 @@ def _check_door(x, y, num_to_check, current_pos):
     match new_list[x]:
         case 1:
             if door_to_check == 0:
-                return True
+                return True, 1
         case 30:
             if door_to_check == 0 and num_to_check == 3 or door_to_check == 1000 and num_to_check == 3:
-                return True
+                return True, 3
         case 60:
             if door_to_check == 1000 and num_to_check == 6:
-                return True
+                return True, 6
         case 70:
             if door_to_check == 1000 and num_to_check == 7:
-                return True
+                return True, 7
         case 80:
             if door_to_check == 1000 and num_to_check == 8:
-                return True
+                return True, 8
         case 90:
             if door_to_check == 1000 and num_to_check == 9:
-                return True
+                return True, 9
         case 1000:
             if door_to_check == 0 and num_to_check == 10 or door_to_check == 1000 and num_to_check == 10 or door_to_check == 0 and num_to_check == 5 or door_to_check == 1000 and num_to_check == 5:
-                return  True
+                return  True, 0
     dc = door_to_check
     nc = num_to_check
     door_to_check = nc
@@ -608,25 +612,25 @@ def _check_door(x, y, num_to_check, current_pos):
     match new_list[x]:
         case 1:
             if door_to_check == 0:
-                return True
+                return True, 1
         case 30:
             if door_to_check == 0 and num_to_check == 3 or door_to_check == 1000 and num_to_check == 3:
-                return True
+                return True, 3
         case 60:
             if door_to_check == 1000 and num_to_check == 6:
-                return True
+                return True, 6
         case 70:
             if door_to_check == 1000 and num_to_check == 7:
-                return True
+                return True, 7
         case 80:
             if door_to_check == 1000 and num_to_check == 8:
-                return True
+                return True, 8
         case 90:
             if door_to_check == 1000 and num_to_check == 9:
-                return True
+                return True, 9
         case 1000:
             if door_to_check == 0 and num_to_check == 10 or door_to_check == 1000 and num_to_check == 10 or door_to_check == 0 and num_to_check == 5 or door_to_check == 1000 and num_to_check == 5:
-                return True
+                return True, 0
     return False
 
 def _jumpscare(note_pos_offset, jumpscare_time, menu):
@@ -712,7 +716,7 @@ class _positional_audio():
                 self.channel.set_volume(left_ear * volume_level, left_ear * volume_level)
 pos_audio = _positional_audio(background_channel)
 pos_audio_2 = _positional_audio(break_in_channel)
-def _check_sounds(x, y, future_pos, door_future, walk_sfx_array, wall_sfx_array, door_open_array, door_locked_array):
+def _check_sounds(x, y, current_position, door_past, walk_sfx_array, wall_sfx_array, door_open_array, door_locked_array):
     new_list = floor_layout[y]
     door_list = door_layout[y]
     door_num = int(door_list[x]/10)
@@ -756,10 +760,8 @@ def _check_sounds(x, y, future_pos, door_future, walk_sfx_array, wall_sfx_array,
     elif new_list[x] >= 9:
         wall_num_update = 2
     if door_num == 100:
-        future_door_list = door_layout[door_future[1]]
-        door_num = int(future_door_list[door_future[0]] / 10)
-        if door_num == 100:
-            door_num = 0
+        future_door_list = door_layout[door_past[1]]
+        door_num = int(future_door_list[door_past[0]] / 10)
     match door_num:
         case 3:
             door_lock_update = 1
@@ -769,15 +771,19 @@ def _check_sounds(x, y, future_pos, door_future, walk_sfx_array, wall_sfx_array,
             door_lock_update = 3
         case 8:
             door_lock_update = 4
+    if door_num == 100:
+        current_door_position = door_layout[current_position[0]]
+        door_num = current_door_position[current_position[1]]
+        if door_num == 100:
+            door_num = 0
+    print(door_num)
     return walk_sfx_array[new_list[x]], wall_sfx_array[new_list[x] - wall_num_update], door_open_array[door_num], door_locked_array[door_lock_update], object_sfx_number, new_list[x] - wall_num_update, name
 
 pygame.time.set_timer(pygame.USEREVENT, 1000)
 pygame.time.set_timer(pygame.USEREVENT + 6, 1000)
-pygame.time.set_timer(pygame.USEREVENT + 5, 1000)
 pygame.time.set_timer(pygame.USEREVENT + 4, 1000)
 timer = random.randint(5,10)
 timer_break_in = random.randint(5, 10)
-timer_man_killed = 1
 timer_jumpscare = 2
 pygame.mixer.music.set_endevent(END_MUSIC)
 clock = pygame.time.Clock()
@@ -862,6 +868,7 @@ while running:
         pygame.mixer.Channel(3).play(map_rustling)
         pygame.mixer.Channel(3).set_volume(volume_level, volume_level)
         mask_being_rendered = map
+        currently_investigating = False
         note_position_offset = (0, 0)
         for i in location_areas:
             i.currently_investigating = False
@@ -870,6 +877,9 @@ while running:
                     man_can_be_murdered = True
                 elif i.which_am_i == 16:
                     lost_map = False
+                    for a in location_areas:
+                        if a.which_am_i == 30:
+                            a.investigated = True
                 _finished_investigating(_check_pos(0, 0), map_layout, i, door_layout)
                 i.investigated = True
                 if i.which_am_i == 19:
@@ -877,7 +887,6 @@ while running:
         mask = pygame.mask.from_surface(mask_being_rendered, 0)
         finished_investigating = False
         picture_taken = False
-
     for event in pygame.event.get():
         if event.type == END_MUSIC and not pygame.mixer.music.get_busy():
             pygame.mixer.music.stop()
@@ -886,7 +895,7 @@ while running:
         if event.type == pygame.USEREVENT:
             timer -= 1
             if timer < 0:
-                timer = random.randint(20, 40)
+                timer = random.randint(10, 25)
                 pygame.mixer.Channel(7).play(random.choice(scary_sfx_array))
                 pygame.mixer.Channel(7).set_volume(random.uniform(0, 1) * volume_level, random.uniform(0, 1) * volume_level)
         #Play door break sound once
@@ -897,17 +906,15 @@ while running:
                     pygame.mixer.Channel(5).play(door_broken)
                     pygame.mixer.Channel(5).set_volume(0, 1 * volume_level)
                     door_broke = True
-        # Play man murdered sound once
-        elif event.type == pygame.USEREVENT + 5 and man_can_be_murdered:
-            timer_man_killed -= 1
-            if timer_man_killed < 0:
-                if man_not_murdered:
-                    pos_audio_2._update(8, 2, mapX, mapY, man_getting_killed, man_not_murdered)
         #Jumpscare timing
         elif event.type == pygame.USEREVENT + 6 and jumpscare_can_commence:
             timer_jumpscare -= 1
             if timer_jumpscare < 0:
                 jumpscare_time = True
+                pygame.mixer.music.stop()
+                pygame.mixer.music.unload()
+                pygame.mixer.music.load("../SFX/extra scary sfx/final_jumpscare.mp3")
+                pygame.mixer.music.play()
         if event.type == pygame.KEYDOWN:
             #Investigating moment
             if event.key == pygame.K_e:
@@ -933,8 +940,10 @@ while running:
                                     i.currently_investigating = True
                                     if i.which_am_i == _check_pos(0, 0) and i.investigated:
                                         currently_investigation = True
-                                objects = RandomObject(final_invest_sprites, update_runner_array, object_sfx, 17, final_invest_sfx)
-                                update_runner_array.append(objects)
+                                if not currently_investigation:
+                                    currently_investigating = True
+                                    objects = RandomObject(final_invest_sprites, update_runner_array, object_sfx, 17, final_invest_sfx)
+                                    update_runner_array.append(objects)
                     elif _check_pos(0, 0) == 19 and not currently_investigation:
                         #Investigating Final Room
                         for i in range(len(object_sfx)):
@@ -943,7 +952,8 @@ while running:
                                     currently_investigation = True
                                 i.currently_investigating = True
                             if not currently_investigation:
-                                objects = RandomObject(final_invest_sprites, update_runner_array, object_sfx, _check_pos(0, 0), final_invest_sfx)
+                                currently_investigating = True
+                                objects = RandomObject(final_invest_sprites, update_runner_array, object_sfx, 21, final_invest_sfx)
                                 update_runner_array.append(objects)
                     elif _check_pos(0, 0) > 19 and not currently_investigation:
                         #Investigating Living Rooms
@@ -952,8 +962,11 @@ while running:
                                 i.currently_investigating = True
                                 if i.which_am_i == _check_pos(0, 0) and i.investigated:
                                     currently_investigation = True
-                            objects = RandomObject(final_invest_sprites, update_runner_array, object_sfx, 18, final_invest_sfx)
-                            update_runner_array.append(objects)
+                            if not currently_investigation:
+                                currently_investigating = True
+                                which_note = _check_pos(0,0) - 2
+                                objects = RandomObject(final_invest_sprites, update_runner_array, object_sfx, which_note, final_invest_sfx)
+                                update_runner_array.append(objects)
                     else:
                         #Investigating normal rooms
                         for i in range(len(object_sfx)):
@@ -962,12 +975,10 @@ while running:
                                     currently_investigation = True
                                 i.currently_investigating = True
                             if not currently_investigation:
+                                currently_investigating = True
                                 objects = RandomObject(final_invest_sprites, update_runner_array, object_sfx, _check_pos(0, 0), final_invest_sfx)
                                 update_runner_array.append(objects)
-            if currently_investigation:
-                for i in location_areas:
-                    i.currently_investigating = False
-            if running:
+            if running and not currently_investigating:
                 match event.key:
                     case pygame.K_ESCAPE:
                         running = False
@@ -987,8 +998,7 @@ while running:
                             elif num_to_check == current_layer + 1 and not current_layer >= 11 or num_to_check == current_layer - 1 and not current_layer >= 11:
                                 current_layer = _door(num_to_check)
                                 mapY += 1
-                                open_door_sfx.play()
-                                open_door_sfx.set_volume(volume_level)
+                                open_door = True
                             else:
                                 #if a door is in the way
                                 if _check_door(mapX, mapY + 1, num_to_check, (mapX, mapY-1)):
@@ -1013,8 +1023,7 @@ while running:
                             elif num_to_check == current_layer + 1 and not current_layer >= 11 or num_to_check == current_layer - 1 and not current_layer >= 11:
                                 current_layer = _door(num_to_check)
                                 mapY -= 1
-                                open_door_sfx.play()
-                                open_door_sfx.set_volume(volume_level)
+                                open_door = True
                             else:
                                 # if a door is in the way
                                 if _check_door(mapX, mapY - 1, num_to_check, (mapX, mapY+1)):
@@ -1039,8 +1048,7 @@ while running:
                             elif num_to_check == current_layer + 1 and not current_layer >= 11 or num_to_check == current_layer - 1 and not current_layer >= 11:
                                 current_layer = _door(num_to_check)
                                 mapX += 1
-                                open_door_sfx.play()
-                                open_door_sfx.set_volume(volume_level)
+                                open_door = True
                             else:
                                 # if a door is in the way
                                 if _check_door(mapX + 1, mapY, num_to_check, (mapX-1, mapY)):
@@ -1065,8 +1073,7 @@ while running:
                             elif num_to_check == current_layer + 1 and not current_layer >= 11 or num_to_check == current_layer - 1 and not current_layer >= 11:
                                 current_layer = _door(num_to_check)
                                 mapX -= 1
-                                open_door_sfx.play()
-                                open_door_sfx.set_volume(volume_level)
+                                open_door = True
                             else:
                                 # if a door is in the way
                                 if _check_door(mapX - 1, mapY, num_to_check, (mapX+1, mapY)):
@@ -1077,17 +1084,33 @@ while running:
                                 left_channel.set_volume(1*volume_level,0)
                 before_volume = volume
                 # checks which sound to play based on position
-                le_sfx = _check_sounds(mapX, mapY, num_to_check, future_position, walk_sfx_array, wall_sfx_array, door_open_array, door_locked_array)
+                le_sfx = _check_sounds(mapX, mapY, (mapX, mapY), future_position, walk_sfx_array, wall_sfx_array, door_open_array, door_locked_array)
                 new_list = floor_layout[mapY]
                 if new_list[mapX] == 7 and not fell_down:
+                    open_door_sfx.play()
                     walk_sfx = pygame.mixer.Sound("../SFX/falling_down_stairs.mp3")
                     fell_down = True
                     lost_map = True
+                    current_layer = num_to_check
+                    mapX -= 1
+                    walk_sfx.stop()
+                    walk_sfx.play()
                 elif new_list[mapX] == 9 and not break_glass:
                     walk_sfx = pygame.mixer.Sound("../SFX/break_glass.mp3")
                     break_glass = True
                 else:
                     walk_sfx = pygame.mixer.Sound(le_sfx[0])
+                if current_layer == 16:
+                    for i in range(len(object_sfx)):
+                        for i in location_areas:
+                            if i.which_am_i == _check_pos(0, 0) and i.investigated:
+                                currently_investigation = True
+                            i.currently_investigating = True
+                        if not currently_investigation:
+                            currently_investigating = True
+                            objects = RandomObject(final_invest_sprites, update_runner_array,
+                                                   object_sfx, _check_pos(0, 0), final_invest_sfx)
+                            update_runner_array.append(objects)
                 wall_sfx = pygame.mixer.Sound(le_sfx[1])
                 open_door_sfx = pygame.mixer.Sound(le_sfx[2])
                 locked_door_sfx = pygame.mixer.Sound(le_sfx[3])
@@ -1095,6 +1118,10 @@ while running:
                     locked_door_sfx.play()
                     locked_door_sfx.set_volume(volume_level)
                     locked_door = False
+                elif open_door:
+                    open_door_sfx.play()
+                    open_door_sfx.set_volume(volume_level)
+                    open_door = False
                 object_sfx = investigation_arrays[le_sfx[4]]
                 volume = le_sfx[5] + 1
                 name = le_sfx[6]
@@ -1107,6 +1134,10 @@ while running:
                     garden_time = True
                 else:
                     garden_time = False
+                if currently_investigation:
+                    for i in location_areas:
+                        i.currently_investigating = False
+                    currently_investigation = False
         if event.type ==pygame.QUIT:
             running = False
     match name:
@@ -1114,16 +1145,17 @@ while running:
         case "main":
             if mapY < 5 or mapY > 5 and mapX == 8 or mapY > 5 and mapX == 9:
                 distance = [8-mapX, 9-mapX]
-                if distance[0] > distance[1]:
+                if distance[0] < distance[1]:
                     pos_audio._update(8, 7, mapX, mapY,elevator_flicker, True)
                 else:
                     pos_audio._update(9, 7, mapX, mapY, elevator_flicker, True)
                 if man_can_be_murdered:
+                     pos_audio_2._update(8, 2, mapX, mapY, man_getting_killed, man_can_be_murdered)
                      man_can_be_murdered = False
         case "garden":
             man_not_murdered = False
             distance = [3 - mapY, 4 - mapY]
-            if distance[0] > distance[1]:
+            if distance[0] < distance[1]:
                 pos_audio._update(3,3, mapX, mapY, fountain, True)
             else:
                 pos_audio._update(3, 4, mapX, mapY, fountain, True)
@@ -1137,7 +1169,7 @@ while running:
             if break_in_not_happen:
                 break_in_not_happen = False
         case "final":
-            if currently_investigation:
+            if currently_investigating:
                 pos_audio._update(mapX, mapY, mapX, mapY, monster_mono, True)
             else:
                 pos_audio._update(mapX, mapY, mapX, mapY, monster_stereo, True)
@@ -1151,7 +1183,7 @@ while running:
         _jumpscare(note_position_offset, jumpscare_time, menu)
         if pygame.mixer.music.get_pos() > 33000:
             tutorial = False
-            menu_mask_array = [start_button, quit_button, title, text]
+            menu_mask_array = [start_button, quit_button, title]
             menu_pos_array = [(0 * scale_x, 200 * scale_y), (700 * scale_x, 500 * scale_y), (500 * scale_x, 50 * scale_y), (width / 2, height / 2)]
             menu = True
             jumpscare_time = False
