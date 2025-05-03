@@ -47,6 +47,7 @@ close_door_sfx = pygame.mixer.Sound("../SFX/Doors/CloseDoor/00_main_area_door_cl
 picture = pygame.mixer.Sound("../SFX/picture_take.mp3")
 silence = pygame.mixer.Sound("../SFX/silence.mp3")
 map_rustling = pygame.mixer.Sound("../SFX/map_rustling.mp3")
+put_away_map = pygame.mixer.Sound("../SFX/put_away_map.mp3")
 man_getting_killed = pygame.mixer.Sound("../SFX/guy_is_murdered.mp3")
 elevator_flicker = pygame.mixer.Sound("../SFX/Background SFX/elevator_flickering.mp3")
 dying_man = pygame.mixer.Sound("../SFX/Background SFX/staff_area_dying_man.mp3")
@@ -117,7 +118,7 @@ mapY = 1
 current_layer = 0
 future_position = [0, 0]
 map_layout = [
-    [0, 16,26,26,26,26,26,26,26,26,26,26,26,26],
+    [0, 16,4,26,26,26,26,26,26,26,26,26,26,26],
     [0, 4,4,26,26,26,26,26,26,26,26,26,26,26],
     [0, 4,4,30,5,5,15,6,27,27,20,21,22,19],
     [0, 4,4,30,5,5,5,5,0,0,10,27,27,27],
@@ -142,9 +143,9 @@ door_layout = [
     [0, 0,0,0,0,0,0,0,1,0,0,0,0,0,0]
 ]
 floor_layout = [
-    [0, 9,26,26,26,26,26,26,26,26,26,26,26,26],
     [0, 9,9,26,26,26,26,26,26,26,26,26,26,26],
-    [0, 8,7,7,0,0,6,6,2,2,12,12,12,13],
+    [0, 9,9,26,26,26,26,26,26,26,26,26,26,26],
+    [0, 9,7,7,0,0,6,6,2,2,12,12,12,13],
     [0, 8,7,7,0,0,0,0,0,0,0,0,0,0],
     [0, 26,26,3,3,3,10,10,0,0,11,11,11,11],
     [0, 26,26,3,3,3,0,0,0,0,0,0,0,0],
@@ -390,6 +391,8 @@ class RandomObject():
         if len(object_array) == 0:
             self.final_sound = final_invest_sfx[which_invest - 11]
             self.sound = random.choice(sound_array)
+            pygame.mixer.Channel(3).play(put_away_map)
+            pygame.mixer.Channel(3).set_volume(volume_level, volume_level)
         else:
             self.sound = sound_array[len(object_array) - 1]
         self.count = 0
@@ -1037,7 +1040,11 @@ while running:
                                 door_list = door_layout[mapY]
                                 num = door_list[mapX]
                                 if _wall_checker(current_layer, num_to_check)[1] and mask_being_rendered == map:
-                                    open_door = True
+                                    if current_layer == 10 and num_to_check == 27 or current_layer == 27 and num_to_check == 10:
+                                        walk_sfx.play()
+                                        walk_sfx.set_volume(volume_level)
+                                    else:
+                                        open_door = True
                                 current_layer = num_to_check
                                 mapY -= 1
                             # goes through door
@@ -1179,14 +1186,17 @@ while running:
         #positional audio
         case "main":
             if man_can_be_murdered:
-                pos_audio_2._update(mapX, mapY, mapX, mapY, man_getting_killed, man_can_be_murdered)
+                pos_audio_2._update(mapX - 2, mapY - 1, mapX, mapY, man_getting_killed, man_can_be_murdered)
                 man_can_be_murdered = False
-            if mapY < 5 or mapY > 5 and mapX == 8 or mapY > 5 and mapX == 9:
+            if mapY < 5 or mapY >= 5 and mapX == 8 or mapY >= 5 and mapX == 9:
                 distance = [8-mapX, 9-mapX]
                 if distance[0] < distance[1]:
                     pos_audio._update(8, 7, mapX, mapY,elevator_flicker, True)
                 else:
                     pos_audio._update(9, 7, mapX, mapY, elevator_flicker, True)
+            else:
+                pos_audio._update(10000, 10000, 0, 0, silence, True)
+                pos_audio_2._update(10000, 10000, 0, 0, silence, True)
         case "garden":
             distance = [3 - mapY, 4 - mapY]
             if distance[0] < distance[1]:
@@ -1209,11 +1219,14 @@ while running:
             elif not investigated_final:
                 pos_audio._update(mapX, mapY, mapX, mapY, monster_stereo, True)
         case "nothing":
-            background_channel.fadeout(1600)
-            #pos_audio._update(10000,10000, 0, 0, silence, True)
-            break_in_channel.fadeout(1600)
+            pos_audio._update(10000,10000, 0, 0, silence, True)
+            pos_audio_2._update(10000, 10000, 0, 0, silence, True)
     _update_runner(update_runner_array)
     if open_door and not pygame.mixer.Channel(0).get_busy():
+        if mapX < 3:
+            walk_sfx = walk_sfx_array[8]
+            mapX = 1
+            mapY = 6
         walk_sfx.play()
         walk_sfx.set_volume(volume_level)
         open_door = False
