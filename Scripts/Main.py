@@ -115,6 +115,7 @@ mask = pygame.mask.from_surface(map, 0)
 mask_2 = pygame.mask.from_surface(cursor, 0)
 mapX = 8
 mapY = 1
+change_x_y = [mapX, mapY]
 current_layer = 0
 future_position = [0, 0]
 map_layout = [
@@ -589,13 +590,13 @@ def _check_door(x, y, num_to_check, current_pos, lost_map):
     print(new_list[x],door_to_check, num_to_check)
     match new_list[x]:
         case 0:
-            if door_to_check == 1000 and num_to_check == 26 or door_to_check == 30 and num_to_check == 26:
+            if door_to_check == 1000 and num_to_check == 26 and x < 6 or door_to_check == 30 and num_to_check == 26 and x < 6:
                 return True
         case 1:
             if door_to_check == 0 or door_to_check == 2:
                 return True, 1
         case 30:
-            if door_to_check == 0 and num_to_check == 3 or door_to_check == 70 and num_to_check == 3:
+            if door_to_check == 0 and num_to_check == 3 or door_to_check == 70 and num_to_check == 3 or door_to_check == 30 and num_to_check == 5:
                 return True, 3
         case 60:
             if door_to_check == 1000 and num_to_check == 6:
@@ -610,7 +611,7 @@ def _check_door(x, y, num_to_check, current_pos, lost_map):
             if door_to_check == 1000 and num_to_check == 9:
                 return True, 9
         case 1000:
-            if door_to_check == 30 and num_to_check == 0 or door_to_check == 100 and num_to_check == 0 or door_to_check == 0 and num_to_check == 10 or door_to_check == 1000 and num_to_check == 10 or door_to_check == 0 and num_to_check == 5 or door_to_check == 1000 and num_to_check == 5:
+            if door_to_check == 1000 and num_to_check == 2 or door_to_check == 30 and num_to_check == 0 or door_to_check == 100 and num_to_check == 0 or door_to_check == 0 and num_to_check == 10 or door_to_check == 1000 and num_to_check == 10 or door_to_check == 0 and num_to_check == 5 or door_to_check == 1000 and num_to_check == 5:
                 return  True, 0
     dc = door_to_check
     nc = num_to_check
@@ -803,7 +804,7 @@ while running:
     mouse_rect = pygame.Rect(mx, my, 50, 50)
     #MENU FUNKTION
     while menu:
-        if not pygame.mixer.music.get_busy():
+        if not pygame.mixer.music.get_busy() and not tutorial:
             pygame.mixer.music.load("../SFX/Music/menu_theme_begin.mp3")
             pygame.mixer.music.play()
             pygame.mixer.music.queue("../SFX/Music/menu_theme_loop.mp3", "loop", 2000)
@@ -820,7 +821,7 @@ while running:
                     pygame.mixer.music.fadeout(800)
                     menu_mask_array = [intro_page, text]
                     menu_pos_array = [(intro_page.get_width()/2, 0), (intro_page.get_width()-20*scale_x, 17*scale_y)]
-                    pygame.mixer.music.queue("../SFX/Music/intro_ambience.mp3")
+                    pygame.mixer.music.queue("../SFX/Music/intro_ambience.mp3", "loop_2", 2000)
                 else:
                     menu = False
                     pygame.mixer.music.fadeout(3000)
@@ -1008,7 +1009,11 @@ while running:
                                 door_list = door_layout[mapY]
                                 num = door_list[mapX]
                                 if _wall_checker(current_layer, num_to_check)[1] and mask_being_rendered == map:
-                                    open_door = True
+                                    if current_layer == 10 and num_to_check == 27 or current_layer == 27 and num_to_check == 10:
+                                        walk_sfx.play()
+                                        walk_sfx.set_volume(volume_level)
+                                    else:
+                                        open_door = True
                                 current_layer = num_to_check
                                 mapY += 1
                             #goes through door
@@ -1076,13 +1081,20 @@ while running:
                                 door_list = door_layout[mapY]
                                 num = door_list[mapX]
                                 if _wall_checker(current_layer, num_to_check)[1] and mask_being_rendered == map:
-                                    open_door = True
+                                    if current_layer == 10 and num_to_check == 27 or current_layer == 27 and num_to_check == 10:
+                                        walk_sfx.play()
+                                        walk_sfx.set_volume(volume_level)
+                                    else:
+                                        open_door = True
                                 current_layer = num_to_check
                                 mapX += 1
                             # goes through door
                             elif num_to_check == current_layer + 1 and not current_layer >= 11 or num_to_check == current_layer - 1 and not current_layer >= 11 and mask_being_rendered == map:
                                 current_layer = _door(num_to_check)
                                 mapX += 1
+                                if current_layer == 10:
+                                    walk_sfx.play()
+                                    walk_sfx.set_volume(volume_level)
                                 open_door = True
                             else:
                                 # if a door is in the way
@@ -1108,7 +1120,11 @@ while running:
                                 door_list = door_layout[mapY]
                                 num = door_list[mapX]
                                 if _wall_checker(current_layer, num_to_check)[1] and mask_being_rendered == map:
-                                    open_door = True
+                                    if current_layer == 10 and num_to_check == 27 or current_layer == 27 and num_to_check == 10:
+                                        walk_sfx.play()
+                                        walk_sfx.set_volume(volume_level)
+                                    else:
+                                        open_door = True
                                 current_layer = num_to_check
                                 mapX -= 1
                             # goes through door
@@ -1135,10 +1151,15 @@ while running:
                     if lost_map and not fell_down:
                         walk_sfx.stop()
                         walk_sfx = falling_down_sfx
+                        mapX = 1
+                        mapY = 6
+                        current_layer = 3
                         fell_down = True
                         walk_sfx.play()
                     else:
                         walk_sfx = pygame.mixer.Sound(le_sfx[0])
+                        if walk_sfx == pygame.mixer.Sound(walk_sfx_array[7]) and mapX < 3:
+                            walk_sfx = walk_sfx_array[8]
                 if new_list[mapX] == 7 and not lost_map and not fell_down:
                     open_door = True
                     lost_map = True
@@ -1196,7 +1217,8 @@ while running:
                     pos_audio._update(9, 7, mapX, mapY, elevator_flicker, True)
             else:
                 pos_audio._update(10000, 10000, 0, 0, silence, True)
-                pos_audio_2._update(10000, 10000, 0, 0, silence, True)
+                if break_in_channel.get_sound() == comms_log:
+                    pos_audio_2._update(10000, 10000, 0, 0, silence, True)
         case "garden":
             distance = [3 - mapY, 4 - mapY]
             if distance[0] < distance[1]:
@@ -1223,10 +1245,8 @@ while running:
             pos_audio_2._update(10000, 10000, 0, 0, silence, True)
     _update_runner(update_runner_array)
     if open_door and not pygame.mixer.Channel(0).get_busy():
-        if mapX < 3:
+        if mapX < 4 and walk_sfx != falling_down_sfx:
             walk_sfx = walk_sfx_array[8]
-            mapX = 1
-            mapY = 6
         walk_sfx.play()
         walk_sfx.set_volume(volume_level)
         open_door = False
