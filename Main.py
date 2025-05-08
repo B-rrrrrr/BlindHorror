@@ -15,46 +15,46 @@ screen = pygame.display.set_mode((width, height), pygame.FULLSCREEN)
 scale_x = screen.get_width() / 1280
 scale_y = screen.get_height() / 720
 
-slider_body = pygame.image.load("../Sprites/slider.png").convert_alpha()
-slider_knob = pygame.image.load("../Sprites/slider_knob.png").convert_alpha()
-speaker_symbol = pygame.image.load("../Sprites/speaker_symbol.png").convert_alpha()
+slider_body = pygame.image.load("Sprites/slider.png").convert_alpha()
+slider_knob = pygame.image.load("Sprites/slider_knob.png").convert_alpha()
+speaker_symbol = pygame.image.load("Sprites/speaker_symbol.png").convert_alpha()
 speaker_symbol = pygame.transform.scale(speaker_symbol, (50 * 2 * scale_x, 50 * 2 * scale_y))
-start_button = pygame.image.load("../Sprites/start_button.png").convert_alpha()
-quit_button = pygame.image.load("../Sprites/quit_button.png").convert_alpha()
+start_button = pygame.image.load("Sprites/start_button.png").convert_alpha()
+quit_button = pygame.image.load("Sprites/quit_button.png").convert_alpha()
 start_button = pygame.transform.scale(start_button, (200 * 2 * scale_x, 100 * 2 * scale_y))
 quit_button = pygame.transform.scale(quit_button, (200 * 2 * scale_x, 100 * 2 * scale_y))
-title = pygame.image.load("../Sprites/title.png").convert_alpha()
+title = pygame.image.load("Sprites/title.png").convert_alpha()
 title = pygame.transform.scale(title, (200 * 3 * scale_x, 100 * 3 * scale_y))
-intro_page = pygame.image.load("../Sprites/intropaper.png").convert_alpha()
+intro_page = pygame.image.load("Sprites/intropaper.png").convert_alpha()
 intro_page = pygame.transform.scale(intro_page, (intro_page.get_width() * scale_x, intro_page.get_height() * scale_y))
-black = pygame.image.load("../Sprites/black.png").convert_alpha()
+black = pygame.image.load("Sprites/black.png").convert_alpha()
 
-location_to_hit = pygame.image.load("../Sprites/location_to_hit.png").convert_alpha()
+location_to_hit = pygame.image.load("Sprites/location_to_hit.png").convert_alpha()
 location_to_hit = pygame.transform.scale(location_to_hit, (5 * 10 * scale_x, 5 * 10 * scale_y))
 location_to_hit.set_colorkey((0,0,0))
-location_hit = pygame.image.load("../Sprites/location_hit.png").convert_alpha()
+location_hit = pygame.image.load("Sprites/location_hit.png").convert_alpha()
 location_hit = pygame.transform.scale(location_hit, (5 * 10 * scale_x, 5 * 10 * scale_y))
 location_hit.set_colorkey((0,0,0))
 location_areas = []
 loc_x = location_to_hit.get_width()/2
 loc_y = location_to_hit.get_height()/2
 
-wall_sfx = pygame.mixer.Sound("../SFX/walls_sfx/00_main_area_wall.mp3")
-walk_sfx = pygame.mixer.Sound("../SFX/walking_sfx/00_walking_normal.mp3")
-locked_door_sfx = pygame.mixer.Sound("../SFX/Doors/locked_sfx/00_main_area_door_locked.mp3")
-open_door_sfx = pygame.mixer.Sound("../SFX/Doors/open_sfx/00_main_area_door_open.mp3")
-close_door_sfx = pygame.mixer.Sound("../SFX/Doors/CloseDoor/00_main_area_door_close.mp3")
-picture = pygame.mixer.Sound("../SFX/picture_take.mp3")
-silence = pygame.mixer.Sound("../SFX/silence.mp3")
-map_rustling = pygame.mixer.Sound("../SFX/map_rustling.mp3")
-put_away_map = pygame.mixer.Sound("../SFX/put_away_map.mp3")
-man_getting_killed = pygame.mixer.Sound("../SFX/guy_is_murdered.mp3")
-elevator_flicker = pygame.mixer.Sound("../SFX/Background SFX/elevator_flickering.mp3")
-dying_man = pygame.mixer.Sound("../SFX/Background SFX/staff_area_dying_man.mp3")
-comms_log = pygame.mixer.Sound("../SFX/Background SFX/comms_voice_message.mp3")
-fountain = pygame.mixer.Sound("../SFX/Background SFX/garden_fountain.mp3")
-door_broken = pygame.mixer.Sound("../SFX/extra scary sfx/janitor_door_breaks.mp3")
-falling_down_sfx = pygame.mixer.Sound("../SFX/falling_down_stairs.mp3")
+wall_sfx = pygame.mixer.Sound("SFX/walls_sfx/00_main_area_wall.mp3")
+walk_sfx = pygame.mixer.Sound("SFX/walking_sfx/00_walking_normal.mp3")
+locked_door_sfx = pygame.mixer.Sound("SFX/Doors/locked_sfx/00_main_area_door_locked.mp3")
+open_door_sfx = pygame.mixer.Sound("SFX/Doors/open_sfx/00_main_area_door_open.mp3")
+close_door_sfx = pygame.mixer.Sound("SFX/Doors/CloseDoor/00_main_area_door_close.mp3")
+picture = pygame.mixer.Sound("SFX/picture_take.mp3")
+silence = pygame.mixer.Sound("SFX/silence.mp3")
+map_rustling = pygame.mixer.Sound("SFX/map_rustling.mp3")
+put_away_map = pygame.mixer.Sound("SFX/put_away_map.mp3")
+man_getting_killed = pygame.mixer.Sound("SFX/guy_is_murdered.mp3")
+elevator_flicker = pygame.mixer.Sound("SFX/Background SFX/elevator_flickering.mp3")
+dying_man = pygame.mixer.Sound("SFX/Background SFX/staff_area_dying_man.mp3")
+comms_log = pygame.mixer.Sound("SFX/Background SFX/comms_voice_message.mp3")
+fountain = pygame.mixer.Sound("SFX/Background SFX/garden_fountain.mp3")
+door_broken = pygame.mixer.Sound("SFX/extra scary sfx/janitor_door_breaks.mp3")
+falling_down_sfx = pygame.mixer.Sound("SFX/falling_down_stairs.mp3")
 fell_down = False
 picture_taken = False
 break_glass = False
@@ -73,21 +73,22 @@ break_in_not_happen = True
 door_broke = False
 break_in_channel = pygame.mixer.Channel(5)
 
-monster_mono = pygame.mixer.Sound("../SFX/final_sequence_mono_monster.mp3")
-monster_stereo = pygame.mixer.Sound("../SFX/final_sequence_stereo_monster.mp3")
+monster_mono = pygame.mixer.Sound("SFX/final_sequence_mono_monster.mp3")
+monster_stereo = pygame.mixer.Sound("SFX/final_sequence_stereo_monster.mp3")
+has_jumpscared = False
 jumpscare_time = False
 jumpscare_can_commence = False
-jump_1 = pygame.image.load("../Sprites/jumpscare_1.png").convert_alpha()
+jump_1 = pygame.image.load("Sprites/jumpscare_1.png").convert_alpha()
 jump_1 = pygame.transform.scale(jump_1, (1280 * scale_x, 36 * 20 * scale_y))
-jump_2 = pygame.image.load("../Sprites/jumpscare_2.png").convert_alpha()
+jump_2 = pygame.image.load("Sprites/jumpscare_2.png").convert_alpha()
 jump_2 = pygame.transform.scale(jump_2, (1280 * scale_x, 36 * 20 * scale_y))
-jump_3 = pygame.image.load("../Sprites/jumpscare_3.png").convert_alpha()
+jump_3 = pygame.image.load("Sprites/jumpscare_3.png").convert_alpha()
 jump_3 = pygame.transform.scale(jump_3, (1280 * scale_x, 36 * 20 * scale_y))
-jump_4 = pygame.image.load("../Sprites/jumpscare_4.png").convert_alpha()
+jump_4 = pygame.image.load("Sprites/jumpscare_4.png").convert_alpha()
 jump_4 = pygame.transform.scale(jump_4, (1280 * scale_x, 36 * 20 * scale_y))
 
 pygame.mouse.set_visible(False)
-cursor = pygame.image.load("../Sprites/cursor.png").convert_alpha()
+cursor = pygame.image.load("Sprites/cursor.png").convert_alpha()
 cursor = pygame.transform.scale(cursor, (150 * scale_x, 150 * scale_y))
 cx = cursor.get_width()/2
 cy = cursor.get_height()/2
@@ -108,7 +109,7 @@ currently_investigating = False
 
 update_runner_array = []
 
-map = pygame.image.load("../Sprites/map.png").convert_alpha()
+map = pygame.image.load("Sprites/map.png").convert_alpha()
 map = pygame.transform.scale(map, (64 * 20 * scale_x, 36 * 20 * scale_y))
 mask_being_rendered = map
 mask = pygame.mask.from_surface(map, 0)
@@ -121,7 +122,7 @@ future_position = [0, 0]
 map_layout = [
     [0, 16,4,26,26,26,26,26,26,26,26,26,26,26],
     [0, 4,4,26,26,26,26,26,26,26,26,26,26,26],
-    [0, 4,4,30,5,5,15,6,27,27,20,21,22,19],
+    [0, 4,4,30,5,5,15,6,28,28,20,21,22,19],
     [0, 4,4,30,5,5,5,5,0,0,10,27,27,27],
     [0, 26,26,3,3,3,17,8,0,0,9,9,9,18],
     [0, 26,26,13,3,3,0,0,0,0,0,0,0,0],
@@ -181,27 +182,27 @@ map_layout.reverse()
 door_layout.reverse()
 floor_layout.reverse()
 
-for i in os.scandir("../Sprites/Investigation"):
+for i in os.scandir("Sprites/Investigation"):
     final_invest_sprites.append(os.path.basename(i))
-for i in os.scandir("../SFX/walking_sfx"):
+for i in os.scandir("SFX/walking_sfx"):
     walk_sfx_array.append(os.path.basename(i))
-for i in os.scandir("../SFX/walls_sfx"):
+for i in os.scandir("SFX/walls_sfx"):
     wall_sfx_array.append(os.path.basename(i))
-for i in os.scandir("../SFX/Doors/open_sfx"):
+for i in os.scandir("SFX/Doors/open_sfx"):
     door_open_array.append(os.path.basename(i))
-for i in os.scandir("../SFX/Doors/locked_sfx"):
+for i in os.scandir("SFX/Doors/locked_sfx"):
     door_locked_array.append(os.path.basename(i))
-for i in os.scandir("../SFX/Doors/CloseDoor"):
+for i in os.scandir("SFX/Doors/CloseDoor"):
     door_close_array.append(os.path.basename(i))
-for i in os.scandir("../SFX/final_invests"):
+for i in os.scandir("SFX/final_invests"):
     final_invest_sfx.append(os.path.basename(i))
-for i in os.scandir("../SFX/scary_sfx"):
-    sound = "../SFX/scary_sfx/" + os.path.basename(i)
+for i in os.scandir("SFX/scary_sfx"):
+    sound = "SFX/scary_sfx/" + os.path.basename(i)
     scary_sfx_array.append(pygame.mixer.Sound(sound))
-for i in os.scandir("../SFX/Ambience"):
-    ambience_array.append("../SFX/Ambience/" + os.path.basename(i))
-for i in os.scandir("../SFX/Investigation_SFX"):
-    sound = "../SFX/Investigation_SFX/" + os.path.basename(i) + "/"
+for i in os.scandir("SFX/Ambience"):
+    ambience_array.append("SFX/Ambience/" + os.path.basename(i))
+for i in os.scandir("SFX/Investigation_SFX"):
+    sound = "SFX/Investigation_SFX/" + os.path.basename(i) + "/"
     match os.path.basename(i):
         case "00_reception":
             for a in os.scandir(i):
@@ -250,38 +251,38 @@ final_invest_sfx.sort()
 ambience_array.sort()
 
 for i in final_invest_sprites:
-    invest_sprite = pygame.image.load("../Sprites/Investigation/" + i).convert_alpha()
+    invest_sprite = pygame.image.load("Sprites/Investigation/" + i).convert_alpha()
     #invest_sprite = pygame.transform.scale(invest_sprite, (invest_sprite.get_width() * 2 * scale_x, invest_sprite.get_height() * 2 * scale_y))
     pos = final_invest_sprites.index(i)
     final_invest_sprites.remove(i)
     final_invest_sprites.insert(pos, invest_sprite)
 for i in walk_sfx_array:
-    sound = "../SFX/walking_sfx/" + i
+    sound = "SFX/walking_sfx/" + i
     pos = walk_sfx_array.index(i)
     walk_sfx_array.remove(i)
     walk_sfx_array.insert(pos, pygame.mixer.Sound(sound))
 for i in wall_sfx_array:
-    sound = "../SFX/walls_sfx/" + i
+    sound = "SFX/walls_sfx/" + i
     pos = wall_sfx_array.index(i)
     wall_sfx_array.remove(i)
     wall_sfx_array.insert(pos, pygame.mixer.Sound(sound))
 for i in door_open_array:
-    sound = "../SFX/Doors/open_sfx/" + i
+    sound = "SFX/Doors/open_sfx/" + i
     pos = door_open_array.index(i)
     door_open_array.remove(i)
     door_open_array.insert(pos, pygame.mixer.Sound(sound))
 for i in door_locked_array:
-    sound = "../SFX/Doors/locked_sfx/" + i
+    sound = "SFX/Doors/locked_sfx/" + i
     pos = door_locked_array.index(i)
     door_locked_array.remove(i)
     door_locked_array.insert(pos, pygame.mixer.Sound(sound))
 for i in door_close_array:
-    sound = "../SFX/Doors/CloseDoor/" + i
+    sound = "SFX/Doors/CloseDoor/" + i
     pos = door_close_array.index(i)
     door_close_array.remove(i)
     door_close_array.insert(pos, pygame.mixer.Sound(sound))
 for i in final_invest_sfx:
-    sound = "../SFX/final_invests/" + i
+    sound = "SFX/final_invests/" + i
     pos = final_invest_sfx.index(i)
     final_invest_sfx.remove(i)
     final_invest_sfx.insert(pos, pygame.mixer.Sound(sound))
@@ -307,6 +308,8 @@ def _tutorial(mask_array, pos_array, mouse_mask, proper_pos, is_clicked):
         screen.blit(overlapping_mask.to_surface(None, i, None), position)
         if button_rect.collidepoint(proper_pos[0], proper_pos[1]) and is_clicked:
             return mask_array.index(i)
+
+#von dieser Tutorial: https://www.youtube.com/watch?v=n_ijgqYmXS0
 class Slider:
     def __init__(self, pos: tuple, size: tuple, initial_val: float, min: int, max: int, slider_body, slider_knob,
                  speaker) -> None:
@@ -797,7 +800,7 @@ pygame.time.set_timer(pygame.USEREVENT, 1000)
 pygame.time.set_timer(pygame.USEREVENT + 6, 1000)
 pygame.time.set_timer(pygame.USEREVENT + 4, 1000)
 timer = random.randint(5,10)
-timer_break_in = 2
+timer_break_in = 3
 timer_jumpscare = 2
 pygame.mixer.music.set_endevent(END_MUSIC)
 clock = pygame.time.Clock()
@@ -810,9 +813,9 @@ while running:
     #MENU FUNKTION
     while menu:
         if not pygame.mixer.music.get_busy() and not tutorial:
-            pygame.mixer.music.load("../SFX/Music/menu_theme_begin.mp3")
+            pygame.mixer.music.load("SFX/Music/menu_theme_begin.mp3")
             pygame.mixer.music.play()
-            pygame.mixer.music.queue("../SFX/Music/menu_theme_loop.mp3", "loop", 2000)
+            pygame.mixer.music.queue("SFX/Music/menu_theme_loop.mp3", "loop", 2000)
         mouse = pygame.mouse.get_pressed()
         screen.fill((0, 0, 0))
         mx, my = pygame.mouse.get_pos()
@@ -821,13 +824,13 @@ while running:
         match _menu(menu_mask_array, menu_pos_array, mask_2, proper_pos, click):
             case 0:
                 #START Knopf oder Click auf Papier beim Intro
-                if not tutorial:
+                if not tutorial and not has_jumpscared:
                     tutorial = True
                     pygame.mixer.music.fadeout(800)
                     menu_mask_array = [intro_page, text]
                     menu_pos_array = [(intro_page.get_width()/2, 0), (intro_page.get_width()-20*scale_x, 17*scale_y)]
-                    pygame.mixer.music.queue("../SFX/Music/intro_ambience.mp3", "loop_2", 2000)
-                else:
+                    pygame.mixer.music.queue("SFX/Music/intro_ambience.mp3", "loop_2", 2000)
+                elif not has_jumpscared:
                     menu = False
                     pygame.mixer.music.fadeout(3000)
                     pygame.mixer.music.queue(ambience_array[0])
@@ -851,6 +854,7 @@ while running:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     menu = False
+                    running = False
         pygame.display.flip()
         clock.tick(60)
 
@@ -928,7 +932,7 @@ while running:
                 jumpscare_time = True
                 pygame.mixer.music.stop()
                 pygame.mixer.music.unload()
-                pygame.mixer.music.load("../SFX/extra scary sfx/final_jumpscare.mp3")
+                pygame.mixer.music.load("SFX/extra scary sfx/final_jumpscare.mp3")
                 pygame.mixer.music.play()
         if event.type == pygame.KEYDOWN:
             #Investigating moment
@@ -1014,11 +1018,10 @@ while running:
                                 door_list = door_layout[mapY]
                                 num = door_list[mapX]
                                 if _wall_checker(current_layer, num_to_check)[1] and mask_being_rendered == map:
-                                    if current_layer == 10 and num_to_check == 27 or current_layer == 27 and num_to_check == 10:
-                                        walk_sfx.play()
-                                        walk_sfx.set_volume(volume_level)
-                                    else:
-                                        open_door = True
+                                    open_door = True
+                                if not open_door:
+                                    walk_sfx.play()
+                                    walk_sfx.set_volume(volume_level)
                                 current_layer = num_to_check
                                 mapY += 1
                             #goes through door
@@ -1051,11 +1054,10 @@ while running:
                                 door_list = door_layout[mapY]
                                 num = door_list[mapX]
                                 if _wall_checker(current_layer, num_to_check)[1] and mask_being_rendered == map:
-                                    if current_layer == 10 and num_to_check == 27 or current_layer == 27 and num_to_check == 10:
-                                        walk_sfx.play()
-                                        walk_sfx.set_volume(volume_level)
-                                    else:
-                                        open_door = True
+                                    open_door = True
+                                if not open_door:
+                                    walk_sfx.play()
+                                    walk_sfx.set_volume(volume_level)
                                 current_layer = num_to_check
                                 mapY -= 1
                             # goes through door
@@ -1087,11 +1089,10 @@ while running:
                                 door_list = door_layout[mapY]
                                 num = door_list[mapX]
                                 if _wall_checker(current_layer, num_to_check)[1] and mask_being_rendered == map:
-                                    if current_layer == 10 and num_to_check == 27 or current_layer == 27 and num_to_check == 10:
-                                        walk_sfx.play()
-                                        walk_sfx.set_volume(volume_level)
-                                    else:
-                                        open_door = True
+                                    open_door = True
+                                if not open_door:
+                                    walk_sfx.play()
+                                    walk_sfx.set_volume(volume_level)
                                 current_layer = num_to_check
                                 mapX += 1
                             # goes through door
@@ -1126,11 +1127,10 @@ while running:
                                 door_list = door_layout[mapY]
                                 num = door_list[mapX]
                                 if _wall_checker(current_layer, num_to_check)[1] and mask_being_rendered == map:
-                                    if current_layer == 10 and num_to_check == 27 or current_layer == 27 and num_to_check == 10:
-                                        walk_sfx.play()
-                                        walk_sfx.set_volume(volume_level)
-                                    else:
-                                        open_door = True
+                                    open_door = True
+                                if not open_door:
+                                    walk_sfx.play()
+                                    walk_sfx.set_volume(volume_level)
                                 current_layer = num_to_check
                                 mapX -= 1
                             # goes through door
@@ -1151,7 +1151,7 @@ while running:
                 le_sfx = _check_sounds(mapX, mapY, change_x_y, future_position, walk_sfx_array, wall_sfx_array, door_open_array, door_locked_array)
                 new_list = floor_layout[mapY]
                 if new_list[mapX] == 9 and not break_glass:
-                    walk_sfx = pygame.mixer.Sound("../SFX/break_glass.mp3")
+                    walk_sfx = pygame.mixer.Sound("SFX/break_glass.mp3")
                     break_glass = True
                 else:
                     if lost_map and not fell_down:
@@ -1241,14 +1241,17 @@ while running:
             if break_in_not_happen and lost_map:
                 break_in_not_happen = False
         case "final":
-            if currently_investigating or investigated_final:
+            if currently_investigating:
                 pos_audio._update(mapX, mapY, mapX, mapY, monster_mono, True)
                 investigated_final = True
             elif not investigated_final:
                 pos_audio._update(mapX, mapY, mapX, mapY, monster_stereo, True)
+            else:
+                #pls fix
+                pygame.mixer.music.fadeout(500)
         case "nothing":
             pos_audio._update(10000,10000, 0, 0, silence, True)
-            pos_audio_2._update(10000, 10000, 0, 0, silence, True)scree
+            pos_audio_2._update(10000, 10000, 0, 0, silence, True)
     _update_runner(update_runner_array)
     if open_door and not pygame.mixer.Channel(0).get_busy():
         if mapX < 4 and walk_sfx != falling_down_sfx:
@@ -1268,16 +1271,13 @@ while running:
         _jumpscare(note_position_offset, jumpscare_time, menu)
         if pygame.mixer.music.get_pos() > 33000:
             tutorial = False
+            has_jumpscared = True
             menu_mask_array = [start_button, quit_button, title]
             menu_pos_array = [(0 * scale_x, 200 * scale_y), (700 * scale_x, 500 * scale_y), (500 * scale_x, 50 * scale_y), (width / 2, height / 2)]
             menu = True
             jumpscare_time = False
         else:
             pygame.mixer.stop()
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    jumpscare_time = False
         pygame.display.flip()
         clock.tick(60)
     pygame.display.flip()
