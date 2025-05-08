@@ -177,6 +177,9 @@ investigation_arrays = [
     [],
     []
 ]
+map_layout.reverse()
+door_layout.reverse()
+floor_layout.reverse()
 
 for i in os.scandir("../Sprites/Investigation"):
     final_invest_sprites.append(os.path.basename(i))
@@ -237,9 +240,6 @@ for i in os.scandir("../SFX/Investigation_SFX"):
                 new_sound = sound + os.path.basename(a)
                 investigation_arrays[8].append(pygame.mixer.Sound(new_sound))
 
-map_layout.reverse()
-door_layout.reverse()
-floor_layout.reverse()
 final_invest_sprites.sort()
 walk_sfx_array.sort()
 wall_sfx_array.sort()
@@ -401,7 +401,8 @@ class RandomObject():
         self.note = note_to_be_used[which_invest - 11]
         self.colliding_with_object = True
         while self.colliding_with_object:
-            self.this_obj = pygame.Rect(random.uniform(100 * scale_x,1100 * scale_x), random.uniform(50 * scale_y,600 * scale_y), random.uniform(175, 300), random.uniform(175, 300))
+            self.this_obj = pygame.Rect(random.uniform(100 * scale_x,1100 * scale_x), random.uniform(50 * scale_y,600 * scale_y),
+                                        random.uniform(175, 300), random.uniform(175, 300))
             if len(object_array) > 0:
                 for i in object_array:
                     self.colliding_with_object = self.this_obj.colliderect(i.this_obj)
@@ -425,7 +426,7 @@ class RandomObject():
                         update_runner_array.clear()
                         update_runner_array.append(self)
                 self.can_col = False
-        #pygame.draw.rect(screen, (255, 0, 0), self.this_obj)
+        pygame.draw.rect(screen, (255, 0, 0), self.this_obj)
     def _get_image(self):
         return self.note
 def _update_runner(object_arr):
@@ -540,6 +541,7 @@ for y in map_layout:
     for i, x in enumerate(y):
         if y[i] == 30:
             y[i] = 7
+
 def _wall_checker(c_layer, future_layer):
     if c_layer >= 20:
         match c_layer:
@@ -724,7 +726,9 @@ class _positional_audio():
                 self.channel.set_volume(left_ear * volume_level, left_ear * volume_level)
 pos_audio = _positional_audio(background_channel)
 pos_audio_2 = _positional_audio(break_in_channel)
-def _check_sounds(x, y, current_position, future_pos, walk_sfx_array, wall_sfx_array, door_open_array, door_locked_array):
+
+def _check_sounds(x, y, current_position, future_pos, walk_sfx_array,
+                  wall_sfx_array, door_open_array, door_locked_array):
     new_list = floor_layout[y]
     door_list = door_layout[y]
     door_num = int(door_list[x]/10)
@@ -786,7 +790,8 @@ def _check_sounds(x, y, current_position, future_pos, walk_sfx_array, wall_sfx_a
             door_lock_update = 3
         case 8:
             door_lock_update = 4
-    return walk_sfx_array[new_list[x]], wall_sfx_array[new_list[x] - wall_num_update], door_open_array[door_num], door_locked_array[door_lock_update], object_sfx_number, new_list[x] - wall_num_update, name, door_num
+    return (walk_sfx_array[new_list[x]], wall_sfx_array[new_list[x] - wall_num_update], door_open_array[door_num],
+            door_locked_array[door_lock_update], object_sfx_number, new_list[x] - wall_num_update, name, door_num)
 
 pygame.time.set_timer(pygame.USEREVENT, 1000)
 pygame.time.set_timer(pygame.USEREVENT + 6, 1000)
@@ -850,7 +855,6 @@ while running:
         clock.tick(60)
 
     #HAUPTSPIEL
-
     if len(update_runner_array) > 1:
         mask_being_rendered = black
         mask = pygame.mask.from_surface(mask_being_rendered, 0)
@@ -862,7 +866,8 @@ while running:
         pygame.mouse.set_pos(width//2, height//2)
         update_runner_array.clear()
 
-    overlap_mask = mask.overlap_mask(mask_2, (proper_pos[0] - note_position_offset[0], proper_pos[1] - note_position_offset[1]))
+    overlap_mask = mask.overlap_mask(mask_2, (proper_pos[0] - note_position_offset[0],
+                                              proper_pos[1] - note_position_offset[1]))
     if running:
         if mask_being_rendered == map and lost_map and fell_down:
             mask_being_rendered = black
@@ -1017,7 +1022,8 @@ while running:
                                 current_layer = num_to_check
                                 mapY += 1
                             #goes through door
-                            elif num_to_check == current_layer + 1 and not current_layer >= 11 or num_to_check == current_layer - 1 and not current_layer >= 11 and mask_being_rendered == map:
+                            elif (num_to_check == current_layer + 1 and not current_layer >= 11 or num_to_check == current_layer - 1
+                                  and not current_layer >= 11 and mask_being_rendered == map):
                                 current_layer = _door(num_to_check)
                                 mapY += 1
                                 open_door = True
@@ -1242,7 +1248,7 @@ while running:
                 pos_audio._update(mapX, mapY, mapX, mapY, monster_stereo, True)
         case "nothing":
             pos_audio._update(10000,10000, 0, 0, silence, True)
-            pos_audio_2._update(10000, 10000, 0, 0, silence, True)
+            pos_audio_2._update(10000, 10000, 0, 0, silence, True)scree
     _update_runner(update_runner_array)
     if open_door and not pygame.mixer.Channel(0).get_busy():
         if mapX < 4 and walk_sfx != falling_down_sfx:
@@ -1255,6 +1261,8 @@ while running:
         close_door_sfx.play()
         close_door_sfx.set_volume(volume_level)
         close_door = False
+
+    #JUMPSCARE
     while jumpscare_time:
         #jumpscare effect
         _jumpscare(note_position_offset, jumpscare_time, menu)
